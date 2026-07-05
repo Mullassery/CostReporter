@@ -96,6 +96,52 @@ pub struct InstructionFile {
     pub cost_usd: f64,
 }
 
+/// MCP internal overhead profiling
+/// CRITICAL: SaaS MCP tools often read documentation and HTML internally
+/// User thinks: "get_user MCP = 100 tokens"
+/// Reality: MCP reads 5k of docs + 2k of API response HTML = 7.1k tokens (71x overhead!)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpProfile {
+    /// MCP tool name
+    pub mcp_name: String,
+    /// What user thinks the call costs
+    pub claimed_tokens: u32,
+    /// What it ACTUALLY cost internally
+    pub actual_tokens: u32,
+    /// Breakdown of where the overhead comes from
+    pub overhead_breakdown: McpOverhead,
+    /// Cost multiplier vs claimed
+    pub multiplier: f64,
+}
+
+/// Where MCP overhead actually comes from
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpOverhead {
+    /// Reading API documentation (OpenAPI specs, README, examples)
+    pub documentation_tokens: u32,
+    /// API response parsing (HTML, JSON prettifying, formatting)
+    pub response_parsing_tokens: u32,
+    /// External resources (images in docs, CSS, JS, stylesheets)
+    pub external_resources_tokens: u32,
+    /// Error handling and validation logic
+    pub validation_tokens: u32,
+    /// Authentication/signing overhead
+    pub auth_tokens: u32,
+    /// Other internal processing
+    pub other_tokens: u32,
+}
+
+impl McpOverhead {
+    pub fn total(&self) -> u32 {
+        self.documentation_tokens
+            + self.response_parsing_tokens
+            + self.external_resources_tokens
+            + self.validation_tokens
+            + self.auth_tokens
+            + self.other_tokens
+    }
+}
+
 impl FileSource {
     /// Cost multiplier for this file source (how many times more expensive than baseline)
     pub fn multiplier(&self) -> f64 {
@@ -144,6 +190,9 @@ pub struct Operation {
     pub file_source: Option<FileSource>,
     /// MCP name (if MCP invocation)
     pub mcp_name: Option<String>,
+    /// MCP profiling: internal overhead vs claimed cost
+    /// e.g., "get_user" claims 100 tokens but reads 5k of docs internally
+    pub mcp_profile: Option<McpProfile>,
     /// Data source type (database, S3, API, etc) - for MCP data operations
     pub data_source: Option<DataSource>,
     /// Timestamp (UTC)
@@ -178,6 +227,7 @@ impl Operation {
             tags: HashMap::new(),
             instruction_files: Vec::new(),
             data_source: None,
+            mcp_profile: None,
         }
     }
 
@@ -227,6 +277,11 @@ impl Operation {
 
     pub fn with_data_source(mut self, source: DataSource) -> Self {
         self.data_source = Some(source);
+        self
+    }
+
+    pub fn with_mcp_profile(mut self, profile: McpProfile) -> Self {
+        self.mcp_profile = Some(profile);
         self
     }
 }
