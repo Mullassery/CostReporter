@@ -1,0 +1,56 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin.build"
+
+[project]
+name = "claude-beacon"
+version = "0.1.0"
+description = "Memory, Observability, and Audit for Claude Code — Rust core with Python API"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com"}
+]
+keywords = ["claude", "claude-code", "memory", "observability", "audit"]
+
+dependencies = [
+    "sqlalchemy>=2.0.0",
+    "pydantic>=2.0.0",
+    "pandas>=1.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+postgres = [
+    "psycopg2-binary>=2.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Mullassery/ClaudeBeacon"
+Repository = "https://github.com/Mullassery/ClaudeBeacon"
+"Bug Tracker" = "https://github.com/Mullassery/ClaudeBeacon/issues"
+
+[tool.maturin]
+module-name = "claude_beacon._core"
+features = ["pyo3/extension-module"]
+python-source = "python/src"
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
