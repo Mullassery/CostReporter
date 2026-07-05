@@ -39,6 +39,7 @@ impl PyCostReporter {
         file_source: Option<&str>,
         mcp_name: Option<&str>,
         user_timezone: Option<&str>,
+        cloud_region: Option<&str>,
     ) -> PyResult<String> {
         let op_type = match operation_type {
             "api_call" => OperationType::ApiCall,
@@ -77,6 +78,9 @@ impl PyCostReporter {
         }
         if let Some(tz) = user_timezone {
             op.user_timezone = Some(tz.to_string());
+        }
+        if let Some(region) = cloud_region {
+            op.cloud_region = Some(region.to_string());
         }
 
         let rt = tokio::runtime::Handle::current();

@@ -119,6 +119,7 @@ class CostReporter:
         file_source: str = None,
         mcp_name: str = None,
         user_timezone: str = None,
+        cloud_region: str = None,
     ) -> dict:
         """
         Track a single operation (called silently in background).
@@ -149,6 +150,11 @@ class CostReporter:
             mcp_name: MCP/Skill name (e.g., "web_search", "code_execution")
             user_timezone: User's timezone (IANA format, e.g., "America/New_York", "Europe/London")
                 CRITICAL: Used for daily budget resets, session grouping, team reporting
+            cloud_region: Cloud region if using cloud provider (e.g., "us-east-1", "eu-west-1")
+                CRITICAL: Cloud pricing varies by region (10-30% variance)
+                Bedrock: us-east-1, us-west-2, eu-west-1, ap-northeast-1
+                Azure: eastus, westeurope, southeastasia
+                GCP: us-central1, europe-west1, asia-east1
 
         Returns:
             Cost data with multipliers applied
@@ -161,7 +167,8 @@ class CostReporter:
                 model="claude-3-5-haiku",
                 file_source="pdf_url",  # 3.6x multiplier
                 user="alice",
-                user_timezone="America/New_York"  # Daily reset at midnight EST
+                user_timezone="America/New_York",  # Daily reset at midnight EST
+                cloud_region="eu-west-1"  # EU premium: +15% on Bedrock
             )
             print(f"Cost: ${cost['cost_usd']}")
         """
@@ -177,6 +184,7 @@ class CostReporter:
             file_source=file_source,
             mcp_name=mcp_name,
             user_timezone=user_timezone,
+            cloud_region=cloud_region,
         )
         return json.loads(result)
 

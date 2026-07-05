@@ -200,6 +200,12 @@ pub struct Operation {
     /// User's timezone (e.g., "America/New_York", "Europe/London", "Asia/Tokyo")
     /// CRITICAL: Used for daily budget resets, session grouping, and team reporting
     pub user_timezone: Option<String>,
+    /// Cloud region if using provider (e.g., "us-east-1", "eu-west-1", "asia-southeast1")
+    /// CRITICAL: Cloud pricing varies by region (10-30% variance)
+    /// Bedrock: us-east-1, us-west-2, eu-west-1, ap-northeast-1, etc.
+    /// Azure: eastus, westeurope, southeastasia, etc.
+    /// GCP: us-central1, europe-west1, asia-east1, etc.
+    pub cloud_region: Option<String>,
     /// User who triggered this (if applicable)
     pub user: Option<String>,
     /// Tags for filtering
@@ -227,6 +233,7 @@ impl Operation {
             mcp_name: None,
             timestamp: chrono::Utc::now(),
             user_timezone: None,
+            cloud_region: None,
             user: None,
             tags: HashMap::new(),
             instruction_files: Vec::new(),
@@ -262,6 +269,11 @@ impl Operation {
 
     pub fn with_instruction_files(mut self, files: Vec<InstructionFile>) -> Self {
         self.instruction_files = files;
+        self
+    }
+
+    pub fn with_cloud_region(mut self, region: String) -> Self {
+        self.cloud_region = Some(region);
         self
     }
 

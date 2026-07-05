@@ -167,9 +167,10 @@ impl PricingService {
     }
 
     /// Fallback pricing by provider (keep updated with real rates)
+    /// NOTE: Cloud providers have regional pricing variance (10-30%)
     fn fallback_pricing(model: &str, provider: PricingProvider) -> ModelPricing {
         match (provider, model) {
-            // Claude API (Anthropic direct)
+            // Claude API (Anthropic direct) - no regional variance
             (PricingProvider::ClaudeApi, "claude-3-5-sonnet") => ModelPricing {
                 model: "claude-3-5-sonnet".to_string(),
                 input_cost_per_1m: 3.00,
@@ -187,38 +188,47 @@ impl PricingService {
             },
 
             // AWS Bedrock (20-30% cheaper than Claude API)
+            // NOTE: us-east-1, us-west-2 = standard
+            // eu-west-1 = +15% (European premium)
+            // ap-northeast-1 = +10% (Asia premium)
             (PricingProvider::AwsBedrock, "claude-3-5-sonnet") => ModelPricing {
                 model: "claude-3-5-sonnet".to_string(),
-                input_cost_per_1m: 2.10,  // 30% discount
+                input_cost_per_1m: 2.10,  // us-east-1/us-west-2 base
                 output_cost_per_1m: 10.50,
             },
             (PricingProvider::AwsBedrock, "claude-3-5-haiku") => ModelPricing {
                 model: "claude-3-5-haiku".to_string(),
-                input_cost_per_1m: 0.56,  // 30% discount
+                input_cost_per_1m: 0.56,
                 output_cost_per_1m: 2.80,
             },
 
-            // Azure Foundry (varies by region, ~15-20% discount)
+            // Azure Foundry (varies by region, ~15-20% discount base)
+            // NOTE: eastus = standard
+            // westeurope = +20% premium
+            // southeastasia = +15% premium
             (PricingProvider::AzureFoundry, "claude-3-5-sonnet") => ModelPricing {
                 model: "claude-3-5-sonnet".to_string(),
-                input_cost_per_1m: 2.55,  // 15% discount
+                input_cost_per_1m: 2.55,  // eastus base
                 output_cost_per_1m: 12.75,
             },
             (PricingProvider::AzureFoundry, "claude-3-5-haiku") => ModelPricing {
                 model: "claude-3-5-haiku".to_string(),
-                input_cost_per_1m: 0.68,  // 15% discount
+                input_cost_per_1m: 0.68,
                 output_cost_per_1m: 3.40,
             },
 
-            // GCP Model Garden (up to 50% discount)
+            // GCP Model Garden (up to 50% discount, but regional variance)
+            // NOTE: us-central1 = standard
+            // europe-west1 = +18% premium
+            // asia-east1 = +20% premium
             (PricingProvider::GcpModelGarden, "claude-3-5-sonnet") => ModelPricing {
                 model: "claude-3-5-sonnet".to_string(),
-                input_cost_per_1m: 1.80,  // 40% discount
+                input_cost_per_1m: 1.80,  // us-central1 base
                 output_cost_per_1m: 9.00,
             },
             (PricingProvider::GcpModelGarden, "claude-3-5-haiku") => ModelPricing {
                 model: "claude-3-5-haiku".to_string(),
-                input_cost_per_1m: 0.48,  // 40% discount
+                input_cost_per_1m: 0.48,
                 output_cost_per_1m: 2.40,
             },
 
@@ -228,6 +238,39 @@ impl PricingService {
                 input_cost_per_1m: 3.00,
                 output_cost_per_1m: 15.00,
             },
+        }
+    }
+
+    /// Get regional pricing multiplier for cloud providers
+    /// Non-cloud (Claude API) returns 1.0
+    pub fn regional_multiplier(provider: PricingProvider, region: &str) -> f64 {
+        match provider {
+            PricingProvider::ClaudeApi => 1.0,  // No regional variance
+            PricingProvider::AwsBedrock => {
+                match region {
+                    "us-east-1" | "us-west-2" => 1.0,  // Base pricing
+                    "eu-west-1" | "eu-central-1" => 1.15,  // +15% Europe premium
+                    "ap-northeast-1" | "ap-southeast-1" => 1.10,  // +10% Asia premium
+                    "ca-central-1" => 1.05,  // +5% Canada
+                    _ => 1.0,  // Unknown region, use base
+                }
+            }
+            PricingProvider::AzureFoundry => {
+                match region {
+                    "eastus" | "eastus2" | "westus" => 1.0,  // Base pricing
+                    "westeurope" | "northeurope" => 1.20,  // +20% Europe premium
+                    "southeastasia" | "eastasia" => 1.15,  // +15% Asia premium
+                    _ => 1.0,
+                }
+            }
+            PricingProvider::GcpModelGarden => {
+                match region {
+                    "us-central1" | "us-east1" | "us-west1" => 1.0,  // Base pricing
+                    "europe-west1" | "europe-north1" => 1.18,  // +18% Europe premium
+                    "asia-east1" | "asia-southeast1" => 1.20,  // +20% Asia premium
+                    _ => 1.0,
+                }
+            }
         }
     }
 }
