@@ -5,7 +5,7 @@
   "description": "Track and optimize LLM costs across all operations, identifying hidden multipliers nobody else measures",
   "author": "Georgi Mammen Mullassery",
   "license": "MIT",
-  "repository": "https://github.com/Mullassery/CostReporter",
+  "repository": "https://github.com/Mullassery/PyCostReporter",
   "capabilities": {
     "tracking": {
       "fileFormatCosts": "Tracks cost multipliers for file sources (CSV vs PDF URL = 36x)",
@@ -137,11 +137,11 @@
   },
   "installation": {
     "pip": "pip install pycost-reporter",
-    "source": "git clone https://github.com/Mullassery/CostReporter.git && cd CostReporter && make install"
+    "source": "git clone https://github.com/Mullassery/PyCostReporter.git && cd PyCostReporter && make install"
   },
   "documentation": {
-    "quickStart": "https://github.com/Mullassery/CostReporter#quick-start",
-    "features": "https://github.com/Mullassery/CostReporter#features",
-    "api": "https://github.com/Mullassery/CostReporter#api-reference"
+    "quickStart": "https://github.com/Mullassery/PyCostReporter#quick-start",
+    "features": "https://github.com/Mullassery/PyCostReporter#features",
+    "api": "https://github.com/Mullassery/PyCostReporter#api-reference"
   }
 }

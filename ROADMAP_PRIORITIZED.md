@@ -70,7 +70,7 @@
    
    Market gap: Zero competitors track file format costs.
    
-   GitHub: github.com/Mullassery/CostReporter
+   GitHub: github.com/Mullassery/PyCostReporter
    ```
 
 3. **"The $420/Month Claude Cost You Don't See"** (Reddit)
@@ -88,7 +88,7 @@
    
    Result: Team saved $420/month just by moving PDFs to disk
    
-   Tool is open source (MIT): github.com/Mullassery/CostReporter
+   Tool is open source (MIT): github.com/Mullassery/PyCostReporter
    ```
 
 ### Week 2.2: Technical Amplification (Day 3-5)
@@ -156,7 +156,7 @@ CostReporter shows: "$32 from PDFs via URL (cost 36x more than disk)"
 Find $420-5000 in hidden costs in 1 hour.
 
 Upvote: producthunt.com/products/cost-reporter
-GitHub: github.com/Mullassery/CostReporter
+GitHub: github.com/Mullassery/PyCostReporter
 ```
 
 **Email campaign (Day 1-7 of PH launch):**
