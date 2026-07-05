@@ -192,15 +192,22 @@ class CostReporter:
         """
         Get today's cost breakdown.
 
+        ⚠️ PRICING SOURCE WARNING:
+        Costs are ONLY accurate if pricing was fetched from source APIs.
+        If any pricing shows source="fallback", that cost is UNRELIABLE.
+
         Returns:
             Breakdown by:
             - operation_type (api_call, file_read, browser_op, etc)
             - file_format (csv, pdf_local, pdf_url, etc)
             - mcp (web_search, code_execution, etc)
+            - pricing_source: "api" (verified), "cache" (updated hourly), "fallback" (⚠️ unreliable)
 
         Example:
             breakdown = reporter.analyze_daily()
             print(f"Total: ${breakdown['total_cost_usd']}")
+            if breakdown.get('pricing_source') != 'api':
+                print(f"⚠️ WARNING: Pricing from {breakdown['pricing_source']} - may be inaccurate")
             print(f"File reads: ${breakdown['by_file_format']['pdf_url']['cost_usd']}")
         """
         result = self._core.analyze_daily()

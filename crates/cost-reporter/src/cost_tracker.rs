@@ -52,6 +52,7 @@ impl CostTracker {
             input_cost_usd: input_cost,
             output_cost_usd: output_cost,
             pricing_timestamp: chrono::Utc::now(),
+            pricing_source: "fallback".to_string(),  // TODO: track actual source from pricing_service
         })
     }
 

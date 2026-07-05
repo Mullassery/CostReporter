@@ -388,6 +388,9 @@ pub struct CostData {
     pub output_cost_usd: f64,
     /// When pricing was valid (critical for historical accuracy)
     pub pricing_timestamp: chrono::DateTime<chrono::Utc>,
+    /// Source of pricing: "api", "cache", "fallback"
+    /// CRITICAL: "fallback" means cost may be INACCURATE (pricing not fetched)
+    pub pricing_source: String,
 }
 
 /// A session groups related operations

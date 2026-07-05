@@ -44,46 +44,68 @@ struct PricingCache {
 }
 
 impl PricingService {
-    /// Create new pricing service with 24-hour cache TTL
+    /// Create new pricing service with 1-hour cache TTL
+    /// CRITICAL: Pricing changes DAILY - cache must be short
+    /// Every cost calculation tries to fetch current pricing from source
     pub fn new() -> Self {
         Self {
             cache: Arc::new(RwLock::new(PricingCache {
                 models_by_provider: HashMap::new(),
                 last_updated: None,
-                update_interval: Duration::hours(24),
+                update_interval: Duration::hours(1),  // Reduced from 24h: pricing changes frequently
             })),
         }
     }
 
     /// Get pricing for a model from specific provider
-    /// Fetches from provider API if cache expired
+    /// CRITICAL: Always attempts to fetch from source API first
+    /// Falls back to cache only if API unreachable
+    /// Never returns stale pricing without warning
     pub async fn get_model_pricing(&self, model: &str, provider: PricingProvider) -> anyhow::Result<ModelPricing> {
-        let cache = self.cache.read().await;
+        // ALWAYS try to fetch from source first
+        // Pricing changes daily - cached data is suspect
+        match Self::fetch_pricing_from_provider(model, provider).await {
+            Ok(pricing) => {
+                // Source fetch successful - update cache with fresh data
+                let mut cache = self.cache.write().await;
+                cache.models_by_provider
+                    .entry(provider)
+                    .or_insert_with(HashMap::new)
+                    .insert(model.to_string(), pricing.clone());
+                cache.last_updated = Some(Utc::now());
+                return Ok(pricing);
+            }
+            Err(fetch_error) => {
+                // Source fetch failed - check cache as fallback
+                let cache = self.cache.read().await;
 
-        // Return cached if available and fresh
-        if let Some(provider_models) = cache.models_by_provider.get(&provider) {
-            if let Some(pricing) = provider_models.get(model) {
-                if let Some(last_updated) = cache.last_updated {
-                    if Utc::now() - last_updated < cache.update_interval {
-                        return Ok(pricing.clone());
+                if let Some(provider_models) = cache.models_by_provider.get(&provider) {
+                    if let Some(cached_pricing) = provider_models.get(model) {
+                        // Return cached but warn that it's stale
+                        eprintln!(
+                            "⚠️ PRICING WARNING: Could not fetch {} from {} ({}). \
+                             Using cached pricing from {:?}. \
+                             Cost may be INACCURATE.",
+                            model,
+                            format!("{:?}", provider),
+                            fetch_error,
+                            cache.last_updated
+                        );
+                        return Ok(cached_pricing.clone());
                     }
                 }
+                drop(cache);
+
+                // No cache available - use fallback with warning
+                eprintln!(
+                    "⚠️ CRITICAL PRICING WARNING: No pricing data available for {} on {:?}. \
+                     Using hardcoded fallback. Cost is UNRELIABLE. \
+                     Reason: {}",
+                    model, provider, fetch_error
+                );
+                return Ok(Self::fallback_pricing(model, provider));
             }
         }
-        drop(cache);
-
-        // Cache expired or model not found: fetch fresh pricing
-        let mut cache = self.cache.write().await;
-        let pricing = Self::fetch_pricing_from_provider(model, provider).await
-            .unwrap_or_else(|_| Self::fallback_pricing(model, provider));
-
-        cache.models_by_provider
-            .entry(provider)
-            .or_insert_with(HashMap::new)
-            .insert(model.to_string(), pricing.clone());
-        cache.last_updated = Some(Utc::now());
-
-        Ok(pricing)
     }
 
     /// Get pricing for all providers (for comparison)
