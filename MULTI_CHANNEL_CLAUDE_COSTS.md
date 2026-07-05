@@ -5,7 +5,7 @@
 Users need to see HOW spending changes over time, not just WHAT they spent:
 
 ```python
-guardian.get_spending_trends(start_date="2026-07-01", end_date="2026-07-05")
+reporter.analyze_daily()
 
 # Returns:
 {
@@ -356,7 +356,7 @@ pub async fn get_trends(
 ## Python API
 
 ```python
-class CostGuardian:
+class PyCostReporter:
     def get_spending_trends(self, start_date, end_date) -> Dict:
         """Daily/weekly/monthly cost trends"""
         return self._core.analyze_trends(start_date, end_date)

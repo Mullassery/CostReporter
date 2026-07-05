@@ -1,8 +1,8 @@
 # CostReporter: Prioritized Launch Roadmap
 
-**Status:** MVP Complete (v0.1.0 live)  
+**Status:** v0.3.0 Live (Full Feature Set)  
 **Goal:** 1,000 GitHub stars + $50k ARR within 8 weeks  
-**Market Position:** The only tool measuring what you're ACTUALLY spending on Claude
+**Market Position:** Only tool tracking 36x file format variance + peak/off-peak hour pricing
 
 ---
 
@@ -20,11 +20,11 @@
 - ✅ Published to PyPI (`pip install pycost-reporter`)
 
 **Metrics:**
-- ✅ GitHub: Live at https://github.com/Mullassery/CostReporter
-- ✅ Release: https://github.com/Mullassery/CostReporter/releases/tag/v0.1.0
-- ✅ PyPI: https://pypi.org/project/pycost-reporter/0.1.0/
-- ✅ Code: 8 major commits, production-ready
-- ⏳ Stars: 0 (starting point)
+- ✅ GitHub: Live at https://github.com/Mullassery/PyCostReporter
+- ✅ Release: https://github.com/Mullassery/PyCostReporter/releases/tag/v0.3.0
+- ✅ PyPI: https://pypi.org/project/pycostreporter/0.3.0/
+- ✅ Code: 27+ commits, all features complete
+- ⏳ Stars: 0 (Week 1 starts)
 
 **Timezone Support:**
 - ✅ Operation tracking includes user_timezone field

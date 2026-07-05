@@ -1,4 +1,4 @@
-# CostReporter + OpenTelemetry Integration
+# PyCostReporter + OpenTelemetry Integration
 
 ## Why OpenTelemetry Matters
 
@@ -9,7 +9,7 @@ Enterprise teams already monitor infrastructure with:
 - Splunk
 - Dynatrace
 
-CostReporter needs to **emit observability signals** so costs appear alongside infrastructure metrics.
+PyCostReporter needs to **emit observability signals** so costs appear alongside infrastructure metrics.
 
 ---
 
@@ -45,15 +45,15 @@ impl OTelExporter {
         let meter_provider = MeterProvider::default();
         
         Self {
-            meter: meter_provider.meter("cost-guardian"),
-            tracer: tracer_provider.get_tracer("cost-guardian"),
+            meter: meter_provider.meter("pycostreporter"),
+            tracer: tracer_provider.get_tracer("pycostreporter"),
         }
     }
     
     pub fn record_operation_cost(&self, op: &OperationCost) {
         // Export as metric
         let counter = self.meter
-            .f64_counter("cost_guardian.operation.cost")
+            .f64_counter("pycostreporter.operation.cost")
             .with_description("Cost of operation in USD")
             .init();
         
@@ -82,7 +82,7 @@ impl OTelExporter {
 ### Core Metrics
 
 ```
-Metric: cost_guardian.operation.cost
+Metric: pycostreporter.operation.cost
 ├─ Type: Counter (cumulative)
 ├─ Unit: USD
 ├─ Attributes:
@@ -91,12 +91,12 @@ Metric: cost_guardian.operation.cost
 │  ├─ mcp: github-mcp, web-search-mcp
 │  └─ status: success, error
 
-Metric: cost_guardian.tokens.input
+Metric: pycostreporter.tokens.input
 ├─ Type: Counter
 ├─ Unit: tokens
 ├─ Attributes: [operation_type, model, mcp]
 
-Metric: cost_guardian.tokens.output
+Metric: pycostreporter.tokens.output
 ├─ Type: Counter
 ├─ Unit: tokens
 ├─ Attributes: [operation_type, model, mcp]
@@ -246,7 +246,7 @@ class NewRelicExporter:
         )
         
         # Record as event for insights
-        custom_event('CostGuardianOperation', {
+        custom_event('PyCostReporterOperation', {
             'cost': cost,
             'operation_type': operation.operation_type,
             'tokens_input': operation.tokens_input,
@@ -261,7 +261,7 @@ class NewRelicExporter:
 ## Configuration
 
 ```yaml
-# cost-guardian-config.yaml
+# pycostreporter-config.yaml
 observability:
   enabled: true
   
@@ -334,7 +334,7 @@ sum(cost_guardian_operation_cost_total) by (team)
 
 ```promql
 # Alert when any team exceeds $1000/month
-alert: CostGuardianTeamBudgetExceeded
+alert: PyCostReporterTeamBudgetExceeded
   expr: |
     sum(rate(cost_guardian_operation_cost_total[24h]) * 86400 * 30) by (team) > 1000
 ```
@@ -364,7 +364,7 @@ rate(cost_guardian_tokens_output_total[1h])
 ```yaml
 # prometheus-alerts.yaml
 groups:
-  - name: cost-guardian
+  - name: pycostreporter
     rules:
       - alert: HighDailyCost
         expr: |
@@ -604,7 +604,7 @@ pub async fn profile_file_costs(
 ### Python API: File Format Analysis
 
 ```python
-class CostGuardian:
+class PyCostReporter:
     def get_cost_by_file_format(self, data_type: str = None) -> Dict:
         """Break down costs by file format + source"""
         return self._core.profile_file_costs(data_type)

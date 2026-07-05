@@ -19,7 +19,7 @@ pub mod analyzer;
 pub mod pricing_service;
 pub mod provider_integrations;
 
-pub use types::{Operation, OperationType, FileSource, Session, CostData};
+pub use types::{Operation, OperationType, FileSource, Session, CostData, BillingPlan, Currency, PricingTier};
 pub use cost_tracker::CostTracker;
 pub use session::SessionManager;
 pub use storage::StorageBackend;

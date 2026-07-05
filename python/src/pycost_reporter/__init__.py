@@ -160,8 +160,8 @@ class CostReporter:
             billing_plan: Billing plan/tier for this operation ("api", "pro", "max", "enterprise")
                 CRITICAL: Pricing varies 200%+ between plans
                 api: Pay-per-token (highest cost)
-                pro: \$20/month fixed
-                max: \$200/month fixed (best for high volume)
+                pro: $20/month fixed
+                max: $200/month fixed (best for high volume)
                 enterprise: Custom negotiated (usually 20-50% discount)
             pricing_tier: Time-of-day pricing tier ("peak", "standard", "off_peak", "weekend")
                 CRITICAL: Pricing varies 20-40% by hour

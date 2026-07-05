@@ -1,5 +1,5 @@
 [package]
-name = "pycost-reporter"
+name = "pycostreporter"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

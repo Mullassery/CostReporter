@@ -1,10 +1,10 @@
-# CLAUDE.md — CostReporter
+# CLAUDE.md — PyCostReporter
 
 This file provides guidance to Claude Code when working with this repository.
 
 ## What We're Building
 
-**CostReporter** — Real-time cost optimizer for LLM platforms (Claude, Haiku, Hermes, etc.). Answers: "Why does my LLM usage cost so much, and what can I do about it?"
+**PyCostReporter** — Real-time cost optimizer for Claude and other LLM platforms. Answers: "Why does my LLM usage cost so much, and what can I do about it?"
 
 **Core insight:** Users can't optimize what they can't measure. We measure, then recommend optimizations.
 
@@ -30,7 +30,7 @@ This file provides guidance to Claude Code when working with this repository.
 ### Layer 2: Python Wrapper (`python/src/`)
 **Easy-to-use API**
 
-- `__init__.py` — Main `CostGuardian` class
+- `__init__.py` — Main `PyCostReporter` class
 - `api.py` — REST API for dashboards/reports
 - `cli.py` — Command-line interface
 - `alerts.py` — Slack/webhook notifications
@@ -45,7 +45,7 @@ This file provides guidance to Claude Code when working with this repository.
 ```
 LLM operation (Claude API, MCP, file read, etc.)
     ↓
-CostReporter tracks (Python API)
+PyCostReporter tracks (Python API)
     ↓
 Rust Core calculates cost (PyO3 FFI)
     ↓
@@ -148,15 +148,15 @@ let cost = tracker.track_operation(OperationCost {
 **Get daily breakdown:**
 ```python
 # In Python:
-breakdown = guardian.get_cost_breakdown(period="today")
-# Returns: {"file_read": 32.40, "ai_call": 15.20, ...}
+breakdown = reporter.analyze_daily()
+# Returns: {"by_operation_type": {...}, "by_file_format": {...}, ...}
 ```
 
-**Detect caching opportunities:**
+**Get plan recommendations:**
 ```python
 # In Python:
-opps = guardian.detect_caching_opportunities()
-# Returns: [{"prompt": "...", "occurrences": 12, "savings": 2.10}]
+plans = reporter.compare_billing_plans()
+# Returns: {"recommended_plan": "Max", "savings": 2650.00}
 ```
 
 ---

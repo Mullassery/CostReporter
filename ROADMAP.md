@@ -1,4 +1,4 @@
-# CostReporter Roadmap
+# PyCostReporter Roadmap
 
 ## The Problem We're Solving
 
@@ -10,9 +10,9 @@ Reality:  "Idk, file reads? AI calls? Git operations?"
 Result:   "Can't optimize what you can't measure"
 ```
 
-**CostReporter changes this:**
+**PyCostReporter changes this:**
 ```
-CostReporter: "File reads = $32.40 (60% of your spend)"
+PyCostReporter: "File reads = $32.40 (60% of your spend)"
 Developer:    "Oh! I can optimize that"
 Result:       "Saves $420/month"
 ```
@@ -28,7 +28,7 @@ Result:       "Saves $420/month"
 | agent-observability | 7 | Framework for tracking | ❌ No spending limits, no model selector |
 | Pro Workflow | 2.6k | Multi-agent orchestration | ❌ No cost optimization |
 | claude_memory | 22 | Persistent memory | ❌ Not cost-focused |
-| **CostReporter** | TBD | **Real-time cost optimization** | ✅ Limits + recommendations + model selection |
+| **PyCostReporter** | TBD | **Real-time cost optimization** | ✅ Limits + recommendations + model selection |
 
 ### Revenue Potential
 
@@ -70,7 +70,7 @@ pub async fn track_operation(&mut self, op: OperationCost) -> Result<()> {
 
 ```python
 # python/__init__.py
-guardian.get_cost_breakdown(period="today")
+reporter.analyze_daily()
 # Returns:
 # {
 #     "file_read": {"count": 47, "tokens": 12450, "cost": 32.40},
@@ -104,13 +104,13 @@ pub struct ModelPricing {
 
 ```bash
 # Show today's breakdown
-cost-guardian breakdown
+pycostreporter breakdown
 
 # Show weekly trend
-cost-guardian trend --period week
+pycostreporter analyze-daily
 
 # Show specific operation
-cost-guardian breakdown --operation file_read
+pycostreporter analyze-session
 ```
 
 **MVP Success Metrics:**
@@ -133,7 +133,7 @@ cost-guardian breakdown --operation file_read
 **What:** Recommend cheapest model for task
 
 ```python
-recommendation = guardian.recommend_model(
+recommendation = reporter.compare_models(
     task="Read config file + syntax check",
     quality_threshold=0.9  # Need 90% quality
 )
@@ -152,7 +152,7 @@ recommendation = guardian.recommend_model(
 **What:** Find repeated prompts (can use cache)
 
 ```python
-caching_opportunities = guardian.detect_caching_opportunities()
+caching_opportunities = reporter.analyze_session()
 # Returns:
 # [
 #     {"prompt": "Analyze this file", "occurrences": 12, "potential_savings": 2.10},
@@ -166,7 +166,7 @@ caching_opportunities = guardian.detect_caching_opportunities()
 **What:** Prevent runaway costs
 
 ```python
-guardian = CostGuardian()
+reporter = PyCostReporter()
 guardian.set_daily_limit(100)           # Stop at $100/day
 guardian.set_operation_limit("file_read", 30)  # Warn at $30
 guardian.set_model_limit("claude-3-5-sonnet", 50)  # Cap Sonnet spend
@@ -180,7 +180,7 @@ guardian.set_model_limit("claude-3-5-sonnet", 50)  # Cap Sonnet spend
 **What:** Show patterns and anomalies
 
 ```python
-trends = guardian.analyze_trends(period="week")
+trends = reporter.analyze_daily()
 # Returns:
 # {
 #     "daily_avg": 49.30,
@@ -196,7 +196,7 @@ trends = guardian.analyze_trends(period="week")
 **What:** Specific, ROI-calculated fixes
 
 ```python
-recommendations = guardian.get_recommendations()
+recommendations = reporter.get_recommendations()
 # Returns:
 # [
 #     {
@@ -322,7 +322,7 @@ cost-reporter/src/
 
 ```
 python/src/
-├── __init__.py          → Main CostGuardian class
+├── __init__.py          → Main PyCostReporter class
 ├── api.py               → REST API for dashboards
 ├── cli.py               → Command-line interface
 ├── alerts.py            → Webhook/Slack notifications

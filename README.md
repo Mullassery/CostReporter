@@ -1,14 +1,14 @@
-# CostReporter
+# PyCostReporter
 
-[![PyPI version](https://badge.fury.io/py/pycost-reporter.svg)](https://pypi.org/project/pycost-reporter/)
+[![PyPI version](https://badge.fury.io/py/pycostreporter.svg)](https://pypi.org/project/pycostreporter/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![GitHub](https://img.shields.io/badge/GitHub-CostReporter-black.svg)](https://github.com/Mullassery/CostReporter)
+[![GitHub](https://img.shields.io/badge/GitHub-PyCostReporter-black.svg)](https://github.com/Mullassery/PyCostReporter)
 [![Package Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen.svg)](#)
 
 **The only tool that shows you the 36x hidden costs in Claude spending.**
 
-CostReporter tracks what no other tool measures: file format multipliers (36x variance), peak/off-peak hour pricing (30% swings), regional pricing (10-30% variance), billing plan differences (200%+ variance), and operation type costs (55x variance).
+PyCostReporter tracks what no other tool measures: file format multipliers (36x variance), peak/off-peak hour pricing (30% swings), regional pricing (10-30% variance), billing plan differences (200%+ variance), and operation type costs (55x variance).
 
 > Stop guessing why Claude costs so much. **See exactly where your money goes. Then cut costs by 50-80%.**
 
@@ -29,11 +29,11 @@ You're spending more on Claude than you realize. Not because Claude is expensive
 
 **Most tools show:** "You spent $47 today"
 
-**CostReporter shows:** "$32 from PDFs via URL (could be $8.80 from disk) + $15 in off-peak operations you could shift to 2 AM"
+**PyCostReporter shows:** "$32 from PDFs via URL (could be $8.80 from disk) + $15 in off-peak operations you could shift to 2 AM"
 
 ---
 
-## What Makes CostReporter Different
+## What Makes PyCostReporter Different
 
 | Dimension | Tracked | Multiplier | Why It Matters |
 |-----------|---------|-----------|---|
@@ -54,10 +54,10 @@ You're spending more on Claude than you realize. Not because Claude is expensive
 ## Real Example: Find $420/Month Hidden
 
 ```
-Before CostReporter:
+Before PyCostReporter:
 "We spend $1,200/month on Claude. Budget doesn't justify it."
 
-After CostReporter breakdown:
+After PyCostReporter breakdown:
 ├─ File reads via URL:  $600 (50%) ← Costs 3.6x disk
 ├─ Browser operations:  $350 (29%) ← Costs 55x baseline
 ├─ Off-peak MCP calls:  $150 (13%) ← Could run at 2 AM (save 30%)
@@ -76,13 +76,13 @@ Result: $1,200 → $375/month. You just kept $10k/year.
 
 ```bash
 # Install
-pip install pycost-reporter
+pip install pycostreporter
 
 # Start tracking
-from pycost_reporter import CostReporter
+from pycostreporter import PyCostReporter
 import os
 
-reporter = CostReporter(db_path="~/.cost-reporter/costs.db")
+reporter = PyCostReporter(db_path="~/.pycostreporter/costs.db")
 
 # Example: Track a file read operation
 cost = reporter.track_operation(
@@ -299,7 +299,7 @@ Every existing cost tracker shows: "You spent $47 today."
 
 Nobody shows: "You spent $32 on PDFs via URL (which costs 3.6x disk) at peak hours (30% premium) on the API tier (8x Max pricing) because you didn't know about the multipliers."
 
-**CostReporter solves the unsolved problem:** Making the hidden 36x-1000x multipliers visible so users can optimize.
+**PyCostReporter solves the unsolved problem:** Making the hidden 36x-1000x multipliers visible so users can optimize.
 
 The market is worth $1B+. Everyone using Claude (50M+ users) is leaving 50-80% in savings on the table.
 
@@ -307,8 +307,8 @@ The market is worth $1B+. Everyone using Claude (50M+ users) is leaving 50-80% i
 
 ## Questions?
 
-- 🐛 **Issues:** [GitHub Issues](https://github.com/Mullassery/CostReporter/issues)
-- 💬 **Discussion:** [GitHub Discussions](https://github.com/Mullassery/CostReporter/discussions)
-- 📦 **Package:** [PyPI: pycost-reporter](https://pypi.org/project/pycost-reporter/)
+- Bug Reports: [GitHub Issues](https://github.com/Mullassery/PyCostReporter/issues)
+- Discussions: [GitHub Discussions](https://github.com/Mullassery/PyCostReporter/discussions)
+- Package: [PyPI: pycostreporter](https://pypi.org/project/pycostreporter/)
 
 **Stop wasting money. Start tracking what matters.** 💚
