@@ -96,24 +96,25 @@
 
 ---
 
-## Phase 4: Enterprise & Integrations (Weeks 7-8+)
+## Phase 4: Enterprise & Observability (Weeks 7-8+)
 
-**Launch with: OpenTelemetry export + compliance + deep integrations**
+**Launch with: Multi-org support + OpenTelemetry export (optional) + compliance**
 
-| Feature | What it does | Market |
-|---------|-------------|--------|
-| **OpenTelemetry Export** | Send metrics to Datadog, Prometheus, SigNoz, Honeycomb, New Relic | Enterprise observability |
-| **Compliance & Audit** | SOC 2 export, immutable operation logs, user attribution | Enterprise security |
-| **Slack/PagerDuty Alerts** | Real-time notifications on budget overages, anomalies | Team operations |
-| **Cost Optimization SaaS** | "Here's how to save $1.2M/year" analysis engine | C-suite buy-in |
-| **CLI Tool** | `cost-reporter breakdown --period week --by operation-type` | Developer friction: 0 |
-| **Web Dashboard** | Visual cost trends, session analysis, multi-channel view | Non-technical stakeholders |
+| Feature | What it does | Primary Use | Market |
+|---------|-------------|-------------|--------|
+| **Multi-Org Support** | Teams across departments can track costs separately | Claude Code | Enterprise |
+| **Compliance & Audit** | SOC 2 export, immutable operation logs, user attribution | Claude Code | Enterprise security |
+| **Budget Enforcement** | Hard stops when spending limits hit | Claude Code | Enterprise cost control |
+| **OpenTelemetry Export** *(Optional)* | Send metrics to Datadog, Prometheus, SigNoz, Honeycomb (for teams needing Grafana dashboards) | External dashboards | Teams with observability stacks |
+| **Slack/PagerDuty Alerts** | Real-time notifications on budget overages, anomalies | Team notifications | Team operations |
+| **Cost Forecasting** | "At this rate: $18,000/month (±$2k)" | Claude Code | Finance planning |
 
 **Phase 4 Success Criteria:**
 - ✅ 10+ enterprise customers ($5k+/month each)
 - ✅ 1,000+ GitHub stars
 - ✅ $50k/month ARR
-- ✅ "Platform" status (not just tool)
+- ✅ Multi-org cost tracking working seamlessly
+- ✅ OpenTelemetry export available (but not required)
 
 ---
 

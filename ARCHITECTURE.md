@@ -418,9 +418,9 @@ ACTION: Cache Code Execution outputs + Web Search results = $8/week savings."
 
 ---
 
-## Integration with Claude Code
+## Integration with Claude Code (PRIMARY INTERFACE)
 
-### Method 1: Explicit User Query
+### Method 1: Explicit User Query ⭐⭐⭐ (Most Common)
 ```
 User: "How much am I spending?"
 ↓
@@ -429,6 +429,8 @@ Claude invokes: cost_reporter.analyze_daily()
 Claude explains findings in natural language
 ↓
 Claude offers: "Should I fix this? Here's the plan."
+↓
+[Claude stays in conversation to explain and potentially implement]
 ```
 
 ### Method 2: Proactive Alerts
@@ -460,6 +462,23 @@ Claude uses other tools to implement fixes
 ↓
 Claude: "Done. You'll save $230/week."
 ```
+
+### Method 4: OpenTelemetry Export (OPTIONAL, for teams with Grafana/Datadog)
+```
+Claude Code skill calls: cost_reporter.export_to_otel()
+↓
+Metrics flow to:
+  - Datadog dashboard (optional)
+  - Prometheus scrape endpoint (optional)
+  - SigNoz (optional)
+  - Grafana dashboards (optional)
+↓
+Teams with existing observability stacks can visualize costs there
+↓
+But PRIMARY interface remains: Claude conversation
+```
+
+**Note:** OpenTelemetry is optional. The main way teams use CostReporter is inside Claude Code conversations, not external dashboards.
 
 ---
 

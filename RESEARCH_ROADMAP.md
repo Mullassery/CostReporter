@@ -373,20 +373,23 @@ Potential savings: $35,200/year (8% reduction)
 
 ### Features
 
-#### 4.1 OpenTelemetry Export ⭐⭐⭐
+#### 4.1 OpenTelemetry Export ⭐⭐ (OPTIONAL)
 **What we build:**
-- Export cost metrics to OpenTelemetry backends:
+- Export cost metrics to OpenTelemetry backends (for teams with existing observability stacks):
   - Datadog (dashboards + alerts)
   - Prometheus (Grafana)
   - SigNoz (open source)
   - Honeycomb (tracing)
   - New Relic (enterprise monitoring)
-- Metrics: cost_guardian.cost_total, cost_guardian.tokens.input/output, cost_guardian.budget.utilization
+- Metrics: cost_reporter.cost_total, cost_reporter.tokens.input/output, cost_reporter.budget.utilization
 
 **Why it matters:**
-- Competitors (Langfuse, LiteLLM, OpenTelemetry) support this
-- Enterprises require OTEL for SOC 2 compliance
-- Integrates with existing observability stacks
+- Competitors (Langfuse, LiteLLM) support this
+- Enterprises with existing Grafana/Datadog stacks can visualize costs there
+- **NOT required for MVP** — primary interface is Claude Code conversations
+- Customers can get all value from Claude skill alone
+
+**Priority Note:** OpenTelemetry is Phase 4 (enterprise add-on), not Phase 1-3. Focus Phase 1 on perfect Claude Code integration.
 
 **Examples:**
 ```yaml
