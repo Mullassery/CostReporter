@@ -17,6 +17,7 @@ pub mod mcp_profiler;
 pub mod storage;
 pub mod analyzer;
 pub mod pricing_service;
+pub mod provider_integrations;
 
 pub use types::{Operation, OperationType, FileSource, Session, CostData};
 pub use cost_tracker::CostTracker;
@@ -24,6 +25,7 @@ pub use session::SessionManager;
 pub use storage::StorageBackend;
 pub use analyzer::CostAnalyzer;
 pub use pricing_service::PricingService;
+pub use provider_integrations::{ProviderIntegration, ActualUsageData, IntegrationStatus};
 
 #[derive(Debug, Clone)]
 pub struct CostReporter {
