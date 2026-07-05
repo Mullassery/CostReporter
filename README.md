@@ -1,14 +1,14 @@
-# ClaudeAudit
+# PyCostAudit
 
-[![PyPI version](https://badge.fury.io/py/claudeaudit.svg)](https://pypi.org/project/claudeaudit/)
+[![PyPI version](https://badge.fury.io/py/pycostaudit.svg)](https://pypi.org/project/pycostaudit/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![GitHub](https://img.shields.io/badge/GitHub-ClaudeAudit-black.svg)](https://github.com/Mullassery/ClaudeAudit)
+[![GitHub](https://img.shields.io/badge/GitHub-PyCostAudit-black.svg)](https://github.com/Mullassery/PyCostAudit)
 [![Package Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen.svg)](#)
 
-**Comprehensive cost audit for Claude API spending — find hidden multipliers nobody else tracks.**
+**Comprehensive LLM cost auditing with hidden multiplier detection — the only tool that tracks what actually costs money.**
 
-ClaudeAudit audits what no other tool measures: file format multipliers (36x variance), GitHub operations (4-12x variance), peak/off-peak hour pricing (30% swings), regional pricing (10-30% variance), billing plan differences (200%+ variance), and operation type costs (55x variance).
+PyCostAudit reveals what no other tool measures: file format multipliers (36x variance), GitHub operations (4-12x variance), peak/off-peak hour pricing (30% swings), regional pricing (10-30% variance), billing plan differences (200%+ variance), and operation type costs (55x variance).
 
 > Stop guessing why Claude costs so much. **See exactly where your money goes. Then cut costs by 50-80%.**
 
@@ -29,11 +29,11 @@ You're spending more on Claude than you realize. Not because Claude is expensive
 
 **Most tools show:** "You spent $47 today"
 
-**ClaudeAudit shows:** "$32 from PDFs via URL (could be $8.80 from disk) + $12 from GitHub commits (could batch to save 30%) + $3 in off-peak operations"
+**PyCostAudit shows:** "$32 from PDFs via URL (could be $8.80 from disk) + $12 from GitHub commits (optimize to save 30%) + $3 in standard hours"
 
 ---
 
-## What Makes ClaudeAudit Different
+## What Makes PyCostAudit Different
 
 | Dimension | Tracked | Multiplier | Why It Matters |
 |-----------|---------|-----------|---|
@@ -78,13 +78,13 @@ Result: $1,200 → $375/month. You just kept $10k/year.
 
 ```bash
 # Install
-pip install claudeaudit
+pip install pycostaudit
 
-# Start tracking
-from claudeaudit import ClaudeAudit
+# Start auditing
+from pycost_audit import PyCostAudit
 import os
 
-audit = ClaudeAudit(db_path="~/.claudeaudit/costs.db")
+auditor = PyCostAudit(db_path="~/.pycostaudit/costs.db")
 
 # Example 1: Track GitHub commit (12x cost multiplier - BIGGEST COST!)
 operation = cost.track_operation(
@@ -384,7 +384,7 @@ Every existing cost tracker shows: "You spent $47 today."
 
 Nobody shows: "You spent $32 on PDFs via URL (which costs 3.6x disk) at peak hours (30% premium) on the API tier (8x Max pricing) because you didn't know about the multipliers."
 
-**ClaudeAudit solves the unsolved problem:** Making the hidden 36x-1000x multipliers visible through comprehensive cost auditing.
+**PyCostAudit solves the unsolved problem:** Making the hidden 36x-1000x multipliers visible so you can optimize ruthlessly.
 
 The market is worth $1B+. Everyone using Claude (50M+ users) is leaving 50-80% in savings on the table.
 
@@ -392,8 +392,8 @@ The market is worth $1B+. Everyone using Claude (50M+ users) is leaving 50-80% i
 
 ## Questions?
 
-- Bug Reports: [GitHub Issues](https://github.com/Mullassery/ClaudeAudit/issues)
-- Discussions: [GitHub Discussions](https://github.com/Mullassery/ClaudeAudit/discussions)
-- Package: [PyPI: claudeaudit](https://pypi.org/project/claudeaudit/)
+- Bug Reports: [GitHub Issues](https://github.com/Mullassery/PyCostAudit/issues)
+- Discussions: [GitHub Discussions](https://github.com/Mullassery/PyCostAudit/discussions)
+- Package: [PyPI: pycostaudit](https://pypi.org/project/pycostaudit/)
 
 **Stop wasting money. Start tracking what matters.** 💚
