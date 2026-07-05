@@ -1,0 +1,106 @@
+{
+  "skill": {
+    "id": "pycostaudit",
+    "name": "PyCostAudit",
+    "tagline": "See where your Claude Code budget actually goes — then save 50-80%",
+    "description": "Track and optimize LLM costs across 15 hidden dimensions (file format 36x, operation type 55x, timing 30%, MCP 10-100x, etc.). The only tool that measures what actually costs money.",
+    "category": "productivity",
+    "tags": ["cost-tracking", "optimization", "claude-code", "budget", "llm", "performance"],
+    "author": {
+      "name": "Georgi Mammen Mullassery",
+      "email": "mullassery@gmail.com",
+      "github": "https://github.com/Mullassery"
+    },
+    "license": "MIT",
+    "version": "0.4.1",
+    "homepage": "https://github.com/Mullassery/PyCostAudit",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Mullassery/PyCostAudit.git"
+    },
+    "bugs": "https://github.com/Mullassery/PyCostAudit/issues",
+    "documentation": "https://github.com/Mullassery/PyCostAudit#readme",
+    "installation": {
+      "npm": null,
+      "pip": "pip install pycostaudit",
+      "uv": "uv pip install pycostaudit",
+      "source": "git clone https://github.com/Mullassery/PyCostAudit.git"
+    },
+    "requirements": {
+      "python": ">=3.9",
+      "os": ["linux", "macos", "windows"],
+      "arch": ["x86_64", "arm64"]
+    },
+    "capabilities": [
+      "Cost tracking across 15 dimensions",
+      "File format multiplier detection (36x variance)",
+      "Operation type breakdown (55x variance)",
+      "Peak/off-peak hour pricing (30% swings)",
+      "MCP overhead detection (10-100x)",
+      "Session-based root cause analysis",
+      "Multi-currency support (no FX conversion)",
+      "Timezone-aware billing",
+      "Dynamic pricing (1-hour cache)",
+      "Anomaly detection",
+      "Cost recommendations"
+    ],
+    "keyFeatures": [
+      {
+        "name": "15-Dimension Tracking",
+        "description": "File format, operation type, timing, region, billing plan, MCP, GitHub ops, markdown overhead, data warehouse, timezone, currency, and more"
+      },
+      {
+        "name": "Hidden Cost Multipliers",
+        "description": "Reveals 36x file format variance, 55x operation type variance, 100x-1000x+ data warehouse costs"
+      },
+      {
+        "name": "Session-Based Analysis",
+        "description": "Group operations by context for root cause analysis and targeted optimization"
+      },
+      {
+        "name": "Real Savings Example",
+        "description": "$420/month hidden costs discovered, $1,200 → $375/month after optimization"
+      }
+    ],
+    "useCases": [
+      "Track where your Claude Code spending really goes",
+      "Identify cost optimization opportunities (50-80% savings)",
+      "Compare billing plans and models",
+      "Detect unusual spending patterns",
+      "Monitor team costs with timezone-aware attribution"
+    ],
+    "commands": {
+      "track_operation": {
+        "description": "Track a single LLM operation cost",
+        "example": "reporter.track_operation(operation_type='file_read', tokens_input=450, tokens_output=120, model='claude-3-5-haiku')"
+      },
+      "analyze_daily": {
+        "description": "Get today's cost breakdown by dimension",
+        "example": "breakdown = reporter.analyze_daily()"
+      },
+      "analyze_session": {
+        "description": "Analyze a session's costs with recommendations",
+        "example": "analysis = reporter.analyze_session(session_id)"
+      },
+      "get_recommendations": {
+        "description": "Get cost optimization recommendations ranked by impact",
+        "example": "recs = reporter.get_recommendations()"
+      }
+    },
+    "screenshots": [],
+    "ratings": {
+      "stars": 0,
+      "reviews": 0
+    },
+    "stats": {
+      "downloads": 0,
+      "weeklyDownloads": 0,
+      "monthlyDownloads": 0
+    },
+    "status": "active",
+    "releaseDate": "2026-07-06",
+    "lastUpdated": "2026-07-06",
+    "verified": false,
+    "official": false
+  }
+}

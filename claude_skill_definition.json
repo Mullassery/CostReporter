@@ -1,6 +1,6 @@
 {
   "name": "pycostaudit",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "displayName": "PyCostAudit: LLM Cost Auditing & Optimization",
   "description": "Track and optimize LLM costs across all operations, identifying hidden multipliers nobody else measures",
   "author": "Georgi Mammen Mullassery",
