@@ -279,6 +279,62 @@ recs = reporter.get_recommendations()
 
 ---
 
+## Claude Code Integration
+
+### Quick Start (Claude Code Skill)
+
+PyCostReporter integrates natively with Claude Code. Enable cost tracking in your Claude Code sessions:
+
+```python
+# In your Claude Code project
+from pycostreporter import PyCostReporter
+
+# Initialize once
+cost_tracker = PyCostReporter(db_path="~/.pycostreporter/costs.db")
+
+# Track any operation
+cost = cost_tracker.track_operation(
+    operation_type="file_read",
+    tokens_input=450,
+    tokens_output=120,
+    model="claude-3-5-haiku",
+    user="your_username"
+)
+
+# Get daily analysis
+breakdown = cost_tracker.analyze_daily()
+print(f"Today's cost: ${breakdown['total_cost']:.2f}")
+
+# Get optimization recommendations
+recommendations = cost_tracker.get_recommendations()
+for rec in recommendations:
+    print(f"{rec['action']}: Save {rec['savings']}")
+```
+
+### Automatic Claude Code Hook Integration
+
+Add this to your `.claude/claude-hooks.json` to auto-track costs:
+
+```json
+{
+  "operation:file_read": "track_cost('file_read', tokens_in, tokens_out)",
+  "operation:api_call": "track_cost('api_call', tokens_in, tokens_out)",
+  "session:end": "report_daily_costs()"
+}
+```
+
+### Environment Setup
+
+```bash
+# Install in your Claude Code project
+pip install pycostreporter
+
+# Set up database path
+export PYCOSTREPORTER_DB=~/.pycostreporter/costs.db
+```
+
+---
+
 ## Platform Support
 
 - **Python:** 3.9, 3.10, 3.11, 3.12, 3.13
