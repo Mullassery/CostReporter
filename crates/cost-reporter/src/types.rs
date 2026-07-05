@@ -197,6 +197,9 @@ pub struct Operation {
     pub data_source: Option<DataSource>,
     /// Timestamp (UTC)
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// User's timezone (e.g., "America/New_York", "Europe/London", "Asia/Tokyo")
+    /// CRITICAL: Used for daily budget resets, session grouping, and team reporting
+    pub user_timezone: Option<String>,
     /// User who triggered this (if applicable)
     pub user: Option<String>,
     /// Tags for filtering
@@ -223,6 +226,7 @@ impl Operation {
             file_source: None,
             mcp_name: None,
             timestamp: chrono::Utc::now(),
+            user_timezone: None,
             user: None,
             tags: HashMap::new(),
             instruction_files: Vec::new(),

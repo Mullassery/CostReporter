@@ -10,18 +10,27 @@
 
 **What we shipped:**
 - ✅ Rust core (production-ready, zero errors)
-- ✅ Python FFI (built with maturin)
+- ✅ Python FFI (built with maturin, on PyPI)
 - ✅ 4 cost multiplier dimensions (file format, operation type, data warehouse, SaaS MCP)
 - ✅ Session-based tracking (root cause analysis)
+- ✅ Timezone-aware cost reporting (critical for distributed teams)
 - ✅ Integration tests (8/8 passing)
 - ✅ Claude Skill definition (ready to integrate)
 - ✅ v0.1.0 release on GitHub
+- ✅ Published to PyPI (`pip install pycost-reporter`)
 
 **Metrics:**
 - ✅ GitHub: Live at https://github.com/Mullassery/CostReporter
 - ✅ Release: https://github.com/Mullassery/CostReporter/releases/tag/v0.1.0
-- ✅ Code: 7 major commits, production-ready
+- ✅ PyPI: https://pypi.org/project/pycost-reporter/0.1.0/
+- ✅ Code: 8 major commits, production-ready
 - ⏳ Stars: 0 (starting point)
+
+**Timezone Support:**
+- ✅ Operation tracking includes user_timezone field
+- ✅ Daily budget resets respect local timezone (not UTC)
+- ✅ Session grouping spans timezone boundaries correctly
+- ✅ Team reporting aggregates per-user local time
 
 ---
 
