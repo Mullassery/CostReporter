@@ -1,30 +1,33 @@
-# CostReporter: Prioritized Launch Roadmap
+# PyCostAudit: Prioritized Launch Roadmap
 
-**Status:** v0.3.0 Live (Full Feature Set)  
-**Goal:** 1,000 GitHub stars + $50k ARR within 8 weeks  
-**Market Position:** Only tool tracking 36x file format variance + peak/off-peak hour pricing
+**Status:** v0.4.1 Production Ready (Full Feature Set + Discoverability Improvements)  
+**Goal:** 150-225 GitHub stars within 6 weeks (Phase 2: Community + CLI)  
+**Market Position:** Only Claude Code tool tracking 15 cost dimensions (file format 36x, operation type 55x, MCP 10-100x, etc.)
 
 ---
 
-## 🎯 Phase 1: Market Validation (Weeks 1-2) ✅ DONE
+## 🎯 Phase 1: Market Validation (Weeks 1-4) ✅ COMPLETE
 
-**What we shipped:**
-- ✅ Rust core (production-ready, zero errors)
-- ✅ Python FFI (built with maturin, on PyPI)
-- ✅ 4 cost multiplier dimensions (file format, operation type, data warehouse, SaaS MCP)
+**Core Features Shipped:**
+- ✅ Rust core (production-ready, 15 unit tests passing)
+- ✅ Python FFI (built with maturin, 0.4.1 on PyPI)
+- ✅ 15 cost dimensions (file format, operation type, timing, region, MCP, data warehouse, etc.)
 - ✅ Session-based tracking (root cause analysis)
-- ✅ Timezone-aware cost reporting (critical for distributed teams)
-- ✅ Integration tests (8/8 passing)
-- ✅ Claude Skill definition (ready to integrate)
-- ✅ v0.1.0 release on GitHub
-- ✅ Published to PyPI (`pip install pycost-reporter`)
+- ✅ Timezone-aware cost reporting (IANA format support)
+- ✅ Multi-currency support (no FX conversion risk)
+- ✅ Peak/off-peak pricing (1.3x, 0.7x multipliers)
+- ✅ Dynamic pricing service (1-hour cache TTL)
+- ✅ Integration tests (15 Rust + 2 Python passing)
+- ✅ Claude Code Skill definition (ready for integration)
+- ✅ v0.4.1 release on GitHub with comprehensive docs
 
-**Metrics:**
-- ✅ GitHub: Live at https://github.com/Mullassery/PyCostReporter
-- ✅ Release: https://github.com/Mullassery/PyCostReporter/releases/tag/v0.3.0
-- ✅ PyPI: https://pypi.org/project/pycostreporter/0.3.0/
-- ✅ Code: 27+ commits, all features complete
-- ⏳ Stars: 0 (Week 1 starts)
+**Phase 1 Completion:**
+- ✅ GitHub: Renamed to PyCostAudit, made public, 5 discovery topics added
+- ✅ Release: https://github.com/Mullassery/PyCostAudit/releases/tag/v0.4.1
+- ✅ PyPI: https://pypi.org/project/pycostaudit/0.4.1/
+- ✅ Code: 40+ commits, all core features complete
+- ✅ README: Optimized for 30-second hook (Caveman-inspired)
+- 📈 Stars: ~0-15 (Phase 1 focus: product quality over stars)
 
 **Timezone Support:**
 - ✅ Operation tracking includes user_timezone field
@@ -34,124 +37,114 @@
 
 ---
 
-## 🚀 Phase 2: Viral Launch (Weeks 2-3) - STARTING NOW
+## 🚀 Phase 2: Discoverability & Community (Weeks 5-7) - STARTING NOW
 
-**Priority 1: Get to 50 GitHub stars (highest impact)**
+**Priority 1: Get to 50-75 GitHub stars with discoverability optimizations (highest ROI)**
 
-### Week 2.1: Content Marketing (Day 1-2)
+Learning from Caveman (361⭐): Optimize for viral GitHub discovery, not traditional marketing.
 
-**Create attack content showing hidden costs:**
+### Week 5: GitHub Discoverability (Already Done in v0.4.1!)
 
-1. **"I Analyzed My Claude Spending - Here's What Broke My Brain"** (Blog Post)
-   ```
-   Used CostReporter to audit my LLM bills:
-   - PDF reads via URL cost 36x more than disk
-   - Browser scraping costs 55x more than file reads
-   - One Snowflake query = $7.50 (2.5M tokens!)
-   - My "cheap" Stripe MCP had 23x hidden overhead
-   
-   Total hidden cost: $47,000/month I didn't know about
-   Now saving $34,000/month with simple changes
-   ```
+✅ **Completed:**
+- GitHub Topics added: claude-code, claude-skills, cost-tracking, llm-optimization, token-optimization
+- README optimized: 30-second hook instead of 5-minute read
+- "Why PyCostAudit Different" comparison table added
+- Before/after cost savings example added ($420/month hidden)
+- v0.4.1 GitHub Release published with comprehensive notes
 
-2. **"CostReporter: The First Tool Measuring Real Claude Costs"** (HN Show)
-   ```
-   Show HN: CostReporter - The only tool measuring hidden LLM costs
-   
-   Most tools show: "You spent $47 today"
-   CostReporter shows: "$32 from PDFs via URL (could be $0.89 from disk)"
-   
-   Features:
-   - 36x file format variance (CSV vs PDF URL)
-   - 55x operation type variance (browser vs file)
-   - 100x-1000x+ data warehouse costs
-   - 10x-100x SaaS MCP overhead
-   - Session-based root cause analysis
-   
-   Market gap: Zero competitors track file format costs.
-   
-   GitHub: github.com/Mullassery/PyCostReporter
-   ```
+📊 **Impact (Expected):**
+- GitHub search visibility: +100% (topics + optimized README)
+- "Claude Code" + "cost-tracking" search ranking improved
+- Caveman-inspired positioning (copy their success pattern)
 
-3. **"The $420/Month Claude Cost You Don't See"** (Reddit)
-   ```
-   Posted to: r/ClaudeCode, r/LLM, r/Python
-   
-   Just benchmarked CostReporter on my team's usage.
-   
-   Typical costs (per session):
-   - API call: baseline ($0.01)
-   - File read from disk: 1.0x ($0.01)
-   - File read via URL: 3.6x ($0.04) ← This is killing you
-   - Browser scrape: 55x ($0.55) ← Nobody realizes this
-   - Snowflake query (100k rows): 100x+ ($10+) ← Ouch
-   
-   Result: Team saved $420/month just by moving PDFs to disk
-   
-   Tool is open source (MIT): github.com/Mullassery/PyCostReporter
-   ```
+### Week 6: Community Building
 
-### Week 2.2: Technical Amplification (Day 3-5)
+**Focus: Build social proof & testimonials**
 
-**Get validators:**
-- Tag @LangChain, @hwchase17, @dlwh (LLM community leaders)
-- Demo on Twitter: "This cost me $420/month to not see"
-- Post on LLM Discord communities
-- Share with Product Hunt community (but don't launch yet)
+1. **Collect Early User Testimonials (3-5 required)**
+   - Reach out to initial users
+   - Document cost savings they achieved
+   - Feature in README "Real Savings Examples" section
+   - Use in Phase 2 social content
 
-**Email outreach (50 targets):**
-- Claude API users (find via GitHub)
-- LLM tool makers (Langfuse, LiteLLM, etc - show complementarity)
-- Enterprise AI teams (using Claude at scale)
+2. **Create Discord/Discussions Channel**
+   - Enable GitHub Discussions on repo
+   - Start "Cost Optimization Tips" thread
+   - Welcome early adopters
+   - Collect feature requests
 
-**Target: 50 stars by end of Week 2**
+3. **Prepare Content (Draft, Don't Publish)**
+   - "I Found $47,000/Month in Hidden Claude Costs" (blog post draft)
+   - "Show HN: PyCostAudit - 15-dimension cost tracking for Claude Code" (draft)
+   - Reddit post for r/ClaudeCode, r/LLM (draft)
+   - Twitter thread on hidden cost multipliers (draft)
+
+### Week 7: Viral Activation (Hold for Momentum)
+
+**Target: 50-75 GitHub stars by end of Week 7**
+
+**Only publish content if:**
+- At least 3 early user testimonials collected
+- GitHub Discussions active with 5+ posts
+- CLI tool ready (see Week 8 below)
 
 ---
 
-## 💡 Phase 3: Product-Market Fit (Weeks 3-4)
+## 💡 Phase 3: Product Expansion (Weeks 8-10)
 
-**Priority: Prove users can save 30-60% within 1 hour**
+**Priority: Reduce friction + expand use cases**
 
-### Feature: Quick-Win Recommendations
+### Feature 1: CLI Tool (Standalone, No Python Import)
 
-**Add to MVP immediately (1-2 days):**
+**Goal:** Match Caveman's "zero friction" — users don't need to be Python devs
+
+```bash
+# Install
+pip install pycostaudit
+
+# Use from CLI (no Python knowledge needed)
+pycostaudit today                    # Show today's breakdown
+pycostaudit session my-project      # Analyze a session  
+pycostaudit compare models           # Model cost comparison
+pycostaudit recommend                # Get optimization tips
+```
+
+**Why:** 
+- Caveman works in chat (zero friction)
+- CLI makes PyCostAudit work in terminal (minimal friction)
+- Expands beyond "Python devs only" to all Claude Code users
+
+### Feature 2: Claude Code Skill Integration
+
+**Goal:** Make PyCostAudit accessible inside Claude Code chat
+
+```
+User: /pycostaudit today
+Claude: [shows breakdown of today's costs]
+
+User: /pycostaudit analyze session debug-auth
+Claude: [shows session analysis + recommendations]
+```
+
+**Why:** Mirrors Caveman's "talk like caveman" activation model
+
+### Feature 3: Anomaly Detection Alerts
+
+**Goal:** Proactive cost warnings
+
 ```python
-# User runs this once
-reporter.quick_audit()
-
-# Returns:
-{
-  "quick_wins": [
-    {
-      "issue": "35 PDF reads via URL",
-      "current_cost": "$1.26",
-      "fix": "Move to local disk",
-      "savings": "$1.06/occurrence",
-      "roi": "Implement in 2 minutes",
-      "annual_impact": "$42/year"
-    },
-    {
-      "issue": "Stripe MCP 23x overhead",
-      "current_cost": "$67/week",
-      "fix": "Batch calls + webhook model",
-      "savings": "$58/week",
-      "roi": "1 hour to implement",
-      "annual_impact": "$3,000/year"
-    }
-  ]
-}
+# Alert when spending unusual
+auditor.set_alert_threshold("daily", "$50")
+auditor.enable_alerts("slack")  # or "email"
 ```
 
-**Why:** Users see $420-5000 savings in the FIRST HOUR. They'll immediately star + share.
+### Marketing: Ecosystem Positioning (Weeks 8-10)
 
-### Marketing (Weeks 3-4):
-
-**Product Hunt Launch (Week 3, Tuesday)**
-```
-CostReporter: See where your Claude money REALLY goes
-
-Most cost trackers show: "You spent $47 today"
-CostReporter shows: "$32 from PDFs via URL (cost 36x more than disk)"
+**Claim the niche:**
+- "The Caveman of cost tracking" (fast, minimal, focused)
+- Position as Claude Code essential tool
+- Compare with LLMOps tools (Langfuse, LiteLLM, etc) — show we're complementary
+- Build integrations (Slack alerts, GitHub Actions, etc)
 
 Find $420-5000 in hidden costs in 1 hour.
 

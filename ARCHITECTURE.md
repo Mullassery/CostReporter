@@ -1,8 +1,13 @@
-# CostReporter Architecture: Agent-Native Cost Analysis Engine
+# PyCostAudit Architecture: Agent-Native Cost Analysis Engine
+
+**Version:** v0.4.1  
+**Status:** Production Ready (15 unit tests, 2 integration tests passing)
 
 ## Core Principle
 
-**CostReporter is NOT a dashboard. It's a Claude Code skill that Claude itself uses to diagnose and fix costs.**
+**PyCostAudit is NOT a dashboard. It's a Claude Code skill that Claude itself uses to diagnose and fix costs.**
+
+**Unique Value:** Tracks 15 dimensions of cost (file format 36x, operation type 55x, timing 30%, region 15%, MCP 10-100x, etc.) — the only tool measuring what others ignore.
 
 ```
 User works in Claude Code

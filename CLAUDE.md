@@ -1,12 +1,27 @@
-# CLAUDE.md — PyCostAudit
+# CLAUDE.md — PyCostAudit v0.4.1
 
 This file provides guidance to Claude Code when working with this repository.
 
 ## What We're Building
 
-**PyCostAudit** — Comprehensive LLM cost auditor revealing hidden spending multipliers. Answers: "Where is my LLM spending really going, and what can I optimize?"
+**PyCostAudit** — The only tool that tracks Claude Code costs across 15+ hidden dimensions (file format, operation type, timing, region, billing plan, etc.)
 
-**Core insight:** Users can't optimize what they can't measure. We measure, then recommend optimizations.
+**Problem:** You see "$47/day" but don't know $32 comes from PDFs costing 36x more than disk, $12 from GitHub ops costing 55x more, etc.
+
+**Solution:** PyCostAudit breaks down costs by multiplier — then recommends where you can save 50-80%.
+
+**Target:** Claude Code users optimizing subscription costs. Also available as Claude Code Skill.
+
+---
+
+## Current Status (v0.4.1)
+
+- ✅ **Production Ready:** Hybrid Rust+Python, full feature set
+- ✅ **PyPI:** Available at https://pypi.org/project/pycostaudit/
+- ✅ **GitHub:** Public, 5 discovery topics, optimized README
+- ✅ **Tests:** 15 Rust unit tests passing, 2 integration tests passing
+- ✅ **Documentation:** Complete with examples, disclaimers, scope clarity
+- 🚧 **Phase 2:** Community features, CLI tool, social proof
 
 ---
 
