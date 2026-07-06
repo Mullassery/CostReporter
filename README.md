@@ -102,28 +102,111 @@ Perfect for: Always-on monitoring, browser-based workflows, team dashboards
 
 ---
 
-## Recent Updates (v0.6.0)
+## Recent Updates (v0.7.0) — 10 Tasks Complete! ✅
 
-### Phase 4: Ultra-Detailed Token Classification ✅ NEW
-- Detailed token classifier with 50+ tracking dimensions
-  * Token sources, task categories, complexity levels, file types
-  * Input delivery methods (pasted to browser scraping: 1.0x-55x)
-  * Time-of-day multipliers and regional pricing (0.7x-1.3x)
-  * Vision token processing, tool overhead, cache effectiveness
-  * Context window usage analysis
-- Enhanced recommendations engine with targeted optimizations
-  * 8 recommendation types ranked by ROI
-  * Specific cost driver analysis per operation
-  * Implementation effort estimates and confidence scores
+### Phase 4: Advanced Filtering & Custom Reports ✅ NEW
+- Advanced filtering system with 12 operators (EQ, NE, GT, BETWEEN, REGEX, etc.)
+- Custom report builder with 6 export formats (JSON, CSV, HTML, Markdown, PDF, Excel)
+- Pre-built templates for common reports (cost breakdown, trend analysis, regional comparison)
+- Report scheduling (daily, weekly, monthly, quarterly delivery)
+- Aggregation engine with 9 functions (SUM, AVG, MIN, MAX, COUNT, STDDEV, percentiles)
+- Time-series bucketing (minute through year)
 
-### Phase 2-3: Multi-Provider & Dashboard ✅
-- Multi-provider cost tracking (OpenAI, AWS Bedrock, Google Gemini)
-- Real-time web dashboard (FastAPI + Next.js)
-- Alert system (Slack + Twilio SMS)
-- OpenTelemetry integration (Jaeger + Prometheus)
-- Claude Code Skill with auto-tracking hooks
-- CLI Monitor with real-time updates
-- Browser Extension for Chrome
+### Phase 5: Multi-Org & Departments ✅ NEW
+- Hierarchical organization structure (unlimited nesting)
+- Role-based access control (admin, manager, department_lead, member, viewer)
+- Department-level budget management and overage detection
+- Cost allocation with flexible distribution rules
+- User-specific cost visibility based on permissions
+- Department comparison and forecasting
+- 24 compliance-ready department tracking tests
+
+### Phase 6: SOC 2 Compliance & Audit ✅ NEW
+- Comprehensive audit logging (20 event types)
+- Data classification (public, internal, confidential, restricted)
+- Access logging with purpose documentation
+- Compliance frameworks (SOC 2, HIPAA, GDPR, PCI DSS, ISO 27001)
+- Data retention policies with automatic archival
+- Compliance checkpoints and remediation tracking
+- Detailed compliance reports with evidence collection
+
+### Phase 7: OpenTelemetry Observability Export ✅ FINAL
+- Multi-backend support (Prometheus, Jaeger, Datadog, New Relic, OTLP)
+- Metrics collection (cost, tokens, operations, anomalies, budget)
+- Distributed tracing with span collection
+- Real-time metrics export to observability stacks
+- Integration with existing monitoring dashboards
+- Custom alerting on cost anomalies
+- 27 comprehensive observability tests
+
+### Phase 2-3: Core Platform ✅
+- Ultra-detailed token classification (50+ dimensions)
+- ML-based anomaly detection (4 algorithms)
+- Advanced cost forecasting (30/60/90-day with confidence intervals)
+- Intelligent recommendations (8 types with ROI ranking)
+- Multi-provider cost tracking (Anthropic, AWS Bedrock, GCP, Azure)
+- Real-time web dashboard
+- Alert system (Slack, Email, SMS, Twilio)
+- Claude Code Skill, CLI Monitor, Browser Extension
+
+---
+
+## Complete Feature Set (v0.7.0)
+
+### 🎯 10 Major Components
+
+| # | Component | Status | Features |
+|---|-----------|--------|----------|
+| 1️⃣ | Database & Infrastructure | ✅ | SQLite storage, alerts, forecasting, anomalies, recommendations, audit logs |
+| 2️⃣ | Budget Alerts | ✅ | Slack, Email, SMS (Twilio) with cooldown & daily limits |
+| 3️⃣ | Automated Reports | ✅ | Daily/weekly HTML emails with progress bars, charts, trends |
+| 4️⃣ | Anomaly Detection | ✅ | 4 algorithms (Z-score, Isolation Forest, Seasonal, Ensemble) |
+| 5️⃣ | Cost Forecasting | ✅ | 30/60/90-day projections with confidence intervals & plan comparison |
+| 6️⃣ | Recommendations | ✅ | 8 types (batching, off-peak, model downgrade, file format, etc.) ranked by ROI |
+| 7️⃣ | Advanced Filtering | ✅ | 12 operators, aggregation (SUM/AVG/MIN/MAX/STDDEV), time bucketing |
+| 8️⃣ | Multi-Org Support | ✅ | Hierarchical departments, role-based access, cost allocation, budget tracking |
+| 9️⃣ | Compliance & Audit | ✅ | SOC 2 ready, GDPR checks, 20 event types, retention policies |
+| 🔟 | Observability Export | ✅ | Prometheus, Jaeger, Datadog, New Relic, OTLP integration |
+
+### 💡 Key Capabilities
+
+**Cost Tracking (50+ Dimensions)**
+- ✅ Operation types (API: 1.0x → Browser: 55x)
+- ✅ File formats (CSV: 1.0x → Image URL: 4.2x)
+- ✅ Time-of-day pricing (Off-peak: 0.7x → Peak: 1.3x)
+- ✅ Regional pricing (US: 1.0x → Asia: 1.2x)
+- ✅ Cache efficiency (Cached reads: 0.1x, writes: 1.25x)
+- ✅ Token types (Input, Output, Vision, Cached, Tool overhead)
+- ✅ Complexity levels (Trivial: 1.0x → Very complex: 1.6x)
+
+**Enterprise Features**
+- ✅ Multi-org with unlimited nested departments
+- ✅ Role-based access control (admin, manager, lead, member, viewer)
+- ✅ Cost allocation and chargeback
+- ✅ Department-level budgets with overage alerts
+- ✅ User-specific cost visibility
+
+**Compliance & Security**
+- ✅ SOC 2 compliance tracking
+- ✅ GDPR compliance checks
+- ✅ Comprehensive audit logs
+- ✅ Data retention policies
+- ✅ Sensitive data access logging
+- ✅ Unauthorized access detection
+
+**Analytics & Insights**
+- ✅ Trend analysis with direction indicators
+- ✅ ML-based anomaly detection
+- ✅ Budget forecasting
+- ✅ Plan comparison (API/Pro/Max/Enterprise)
+- ✅ Cost breakdown by operation/provider/region
+
+**Observability**
+- ✅ Real-time metrics export
+- ✅ Distributed tracing
+- ✅ Integration with major platforms
+- ✅ Custom dashboards support
+- ✅ Historical data retention
 
 ---
 
