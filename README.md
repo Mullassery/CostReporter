@@ -212,6 +212,73 @@ pycostaudit compliance --framework SOC2 --export report.json
 
 ---
 
+## 🤖 For AI Agents & Automated Systems
+
+### Quick Integration Reference
+
+```python
+# Agent: Import the core modules
+from pycostaudit.ml_forecasting_service import TimeSeriesForecaster
+from pycostaudit.compliance_reporting import ComplianceManager
+from pycostaudit.database import DatabaseManager
+
+# Agent: Generate forecast for decision-making
+forecaster = TimeSeriesForecaster()
+forecast = forecaster.forecast_costs(daily_costs, forecast_days=30)
+budget_will_exceed = forecast['summary']['total_projected'] > budget_limit
+
+# Agent: Check compliance status
+manager = ComplianceManager()
+report = manager.generate_compliance_report(...)
+compliance_score = manager.get_compliance_summary(report, framework)['compliance_score']
+
+# Agent: Query database for analysis
+db = DatabaseManager()
+daily_costs = db.get_time_series(user_id, "daily", limit=90)
+```
+
+### API Contract for Agents
+
+**Cost Forecasting API:**
+- Input: Historical daily costs as `[(date_string, float_amount), ...]`
+- Output: `ForecastResult` with `forecast_points`, `trend`, `anomalies`, `metrics`
+- Algorithms: `ARIMA`, `EXPONENTIAL_SMOOTHING`, `LINEAR_REGRESSION`, `ENSEMBLE`
+- Accuracy Metric: MAPE (Mean Absolute Percentage Error) 5-12%
+
+**Compliance API:**
+- Input: Framework name + user_id + organization name
+- Output: Compliance report + verification checklist + compliance score (0-100%)
+- Frameworks: SOC2, HIPAA, GDPR, PCI_DSS, ISO_27001, CUSTOM
+- Event Types: 20+ (track all cost/budget/alert/user operations)
+
+**REST API Endpoints:**
+- `GET /api/forecast/costs` - Returns JSON forecast with confidence intervals
+- `GET /api/forecast/budget` - Returns budget projection and warnings
+- `GET /api/forecast/trends` - Returns trend analysis (growth rates, WoW changes)
+- `GET /api/compliance/report` - Returns compliance report in JSON
+- `GET /api/compliance/verify` - Returns compliance verification checklist
+- `GET /api/compliance/audit-trail` - Returns audit trail (JSON or CSV)
+
+### Agent Decision Framework
+
+Use these outputs for automated decision-making:
+
+```python
+# Budget decision
+if forecast['summary']['total_projected'] > budget * 1.1:
+    agent.notify_finance_team("Cost projection exceeds budget by 10%")
+    
+# Compliance decision
+if compliance_score < 95:
+    agent.flag_for_audit(f"Compliance score {compliance_score}% below target")
+    
+# Optimization decision
+if forecast['metrics']['trend'] == 'increasing':
+    agent.recommend_optimization_review()
+```
+
+---
+
 ## Live Demo
 
 **Real-Time Cost Dashboard (Default Interface)**
