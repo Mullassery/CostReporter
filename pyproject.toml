@@ -5,14 +5,53 @@ build-backend = "maturin.build"
 [project]
 name = "pycostaudit"
 version = "0.9.0"
-description = "Real-time LLM cost tracking and optimization — Rust core with Python API"
+description = "Track Claude API costs across 15+ dimensions — ML forecasting, budget alerts, compliance reporting. Identify hidden cost multipliers (3.6x-1000x) and save 50-80% on LLM spending."
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com"}
 ]
-keywords = ["claude", "llm", "cost-tracking", "optimization", "budget"]
+keywords = [
+    "claude",
+    "llm",
+    "cost-tracking",
+    "cost-optimization",
+    "budget-monitoring",
+    "api-costs",
+    "machine-learning",
+    "forecasting",
+    "time-series",
+    "arima",
+    "compliance",
+    "soc2",
+    "hipaa",
+    "gdpr",
+    "audit-trail",
+    "anthropic",
+    "ai-cost-management",
+    "financial-analytics",
+    "usage-tracking",
+    "billing-optimization"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+    "Topic :: Utilities",
+]
 
 dependencies = [
     "sqlalchemy>=2.0.0",
@@ -42,6 +81,10 @@ postgres = [
 Homepage = "https://github.com/Mullassery/PyCostAudit"
 Repository = "https://github.com/Mullassery/PyCostAudit"
 "Bug Tracker" = "https://github.com/Mullassery/PyCostAudit/issues"
+Documentation = "https://github.com/Mullassery/PyCostAudit#readme"
+Changelog = "https://github.com/Mullassery/PyCostAudit/releases"
+"Source Code" = "https://github.com/Mullassery/PyCostAudit/tree/main"
+Discussions = "https://github.com/Mullassery/PyCostAudit/discussions"
 
 [tool.maturin]
 module-name = "pycostaudit._core"
