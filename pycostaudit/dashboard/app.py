@@ -11,6 +11,18 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict
 import json
+import logging
+import os
+
+from .errors import (
+    ValidationError, AuthenticationError, NotFoundError,
+    InvalidAlgorithmError, InvalidFrameworkError, InsufficientDataError,
+    handle_exception
+)
+from .logging_setup import setup_logging
+
+# Setup logging
+logger = setup_logging("pycostaudit_api")
 
 from .models import Base, User, Cost, Budget, Alert, CostSummary
 from ..ml_forecasting_service import TimeSeriesForecaster, ForecastAlgorithm
@@ -83,27 +95,64 @@ def get_current_user(
 @app.post("/api/auth/register")
 def register(email: str, name: str, password: str, db: Session = Depends(get_db)):
     """Register new user"""
-    # Check if user exists
-    if db.query(User).filter(User.email == email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
+    try:
+        # Validate input
+        if not email or not name or not password:
+            raise ValidationError("email, name, and password are required")
 
-    # Create user
-    user = User(email=email, name=name, password_hash=password)  # Hash in production
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+        if len(password) < 8:
+            raise ValidationError("password must be at least 8 characters")
 
-    return {"id": user.id, "email": user.email, "name": user.name}
+        if "@" not in email or "." not in email:
+            raise ValidationError("invalid email format")
+
+        logger.info(f"register_attempt", extra={"email": email, "name": name})
+
+        # Check if user exists
+        if db.query(User).filter(User.email == email).first():
+            logger.warning(f"register_failed_duplicate", extra={"email": email})
+            raise ValidationError("Email already registered")
+
+        # Create user (TODO: hash password with bcrypt in production)
+        user = User(email=email, name=name, password_hash=password)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        logger.info(f"register_success", extra={"user_id": user.id, "email": email})
+        return {"id": user.id, "email": user.email, "name": user.name}
+
+    except ValidationError as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"register_error: {str(e)}", exc_info=True, extra={"email": email})
+        raise handle_exception(e, "register")
 
 
 @app.post("/api/auth/login")
 def login(email: str, password: str, db: Session = Depends(get_db)):
     """Login user"""
-    user = db.query(User).filter(User.email == email).first()
-    if not user or user.password_hash != password:  # Verify hash in production
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    try:
+        if not email or not password:
+            raise ValidationError("email and password are required")
 
-    return {"token": user.id, "user": {"id": user.id, "email": user.email, "name": user.name}}
+        logger.info(f"login_attempt", extra={"email": email})
+
+        user = db.query(User).filter(User.email == email).first()
+        if not user or user.password_hash != password:  # TODO: verify bcrypt hash in production
+            logger.warning(f"login_failed", extra={"email": email, "reason": "invalid_credentials"})
+            raise AuthenticationError("Invalid email or password")
+
+        logger.info(f"login_success", extra={"user_id": user.id, "email": email})
+        return {"token": user.id, "user": {"id": user.id, "email": user.email, "name": user.name}}
+
+    except AuthenticationError as e:
+        raise e.to_http_exception()
+    except ValidationError as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"login_error: {str(e)}", exc_info=True, extra={"email": email})
+        raise handle_exception(e, "login")
 
 
 @app.get("/api/auth/me")
@@ -472,71 +521,108 @@ def get_cost_forecast(
     period: str = Query("30d")
 ):
     """Get ML-based cost forecast with confidence intervals"""
-    # Get historical daily costs
-    if period == "7d":
-        start_date = datetime.utcnow() - timedelta(days=7)
-    elif period == "30d":
-        start_date = datetime.utcnow() - timedelta(days=30)
-    else:
-        start_date = datetime.utcnow() - timedelta(days=90)
+    try:
+        # Validate period parameter
+        valid_periods = ["7d", "30d", "90d"]
+        if period not in valid_periods:
+            raise ValidationError(f"period must be one of {valid_periods}, got '{period}'")
 
-    costs_data = db.query(Cost).filter(
-        and_(
-            Cost.user_id == current_user.id,
-            Cost.timestamp >= start_date
+        logger.info("forecast_requested", extra={
+            "user_id": current_user.id,
+            "forecast_days": forecast_days,
+            "algorithm": algorithm,
+            "period": period
+        })
+
+        # Get historical daily costs
+        if period == "7d":
+            start_date = datetime.utcnow() - timedelta(days=7)
+        elif period == "30d":
+            start_date = datetime.utcnow() - timedelta(days=30)
+        else:
+            start_date = datetime.utcnow() - timedelta(days=90)
+
+        costs_data = db.query(Cost).filter(
+            and_(
+                Cost.user_id == current_user.id,
+                Cost.timestamp >= start_date
+            )
+        ).all()
+
+        # Group by day
+        daily_costs_dict = {}
+        for cost in costs_data:
+            day = cost.timestamp.date().isoformat()
+            daily_costs_dict[day] = daily_costs_dict.get(day, 0) + cost.total_cost
+
+        daily_costs = [(day, amount) for day, amount in sorted(daily_costs_dict.items())]
+
+        if len(daily_costs) < 14:
+            logger.warning("forecast_insufficient_data", extra={
+                "user_id": current_user.id,
+                "data_points": len(daily_costs)
+            })
+            raise InsufficientDataError(
+                "Need at least 2 weeks (14 days) of cost data to generate forecast",
+                {"data_points": len(daily_costs), "required": 14}
+            )
+
+        # Validate algorithm
+        valid_algorithms = list(ForecastAlgorithm.__members__.keys())
+        if algorithm.upper() not in valid_algorithms:
+            raise InvalidAlgorithmError(algorithm, valid_algorithms)
+
+        # Generate forecast
+        forecaster = TimeSeriesForecaster(history_days=90)
+        algo = ForecastAlgorithm[algorithm.upper()]
+        forecast_result = forecaster.forecast_costs(
+            daily_costs=daily_costs,
+            forecast_days=forecast_days,
+            algorithm=algo,
+            confidence_level=confidence
         )
-    ).all()
 
-    # Group by day
-    daily_costs_dict = {}
-    for cost in costs_data:
-        day = cost.timestamp.date().isoformat()
-        daily_costs_dict[day] = daily_costs_dict.get(day, 0) + cost.total_cost
-
-    daily_costs = [(day, amount) for day, amount in sorted(daily_costs_dict.items())]
-
-    if not daily_costs:
-        return {
-            "error": "Insufficient historical data",
-            "forecast_points": [],
-            "message": "Need at least 2 weeks of cost data to generate forecast"
+        # Serialize forecast
+        forecast_data = {
+            "algorithm": forecast_result.algorithm,
+            "forecast_points": [
+                {
+                    "date": p.date,
+                    "predicted_cost": p.predicted_cost,
+                    "lower_bound": p.lower_bound,
+                    "upper_bound": p.upper_bound,
+                    "confidence": p.confidence
+                }
+                for p in forecast_result.forecast_points
+            ],
+            "metrics": {
+                "rmse": forecast_result.rmse,
+                "mape": forecast_result.mape,
+                "trend": forecast_result.trend,
+                "seasonality_detected": forecast_result.seasonality_detected,
+            },
+            "summary": forecaster.get_forecast_summary(forecast_result),
+            "anomalies": [{"date": a[0], "anomaly_score": a[1]} for a in forecast_result.anomalies],
+            "metadata": forecast_result.metadata
         }
 
-    # Generate forecast
-    forecaster = TimeSeriesForecaster(history_days=90)
-    algo = ForecastAlgorithm[algorithm.upper()] if algorithm.upper() in ForecastAlgorithm.__members__ else ForecastAlgorithm.ENSEMBLE
-    forecast_result = forecaster.forecast_costs(
-        daily_costs=daily_costs,
-        forecast_days=forecast_days,
-        algorithm=algo,
-        confidence_level=confidence
-    )
+        logger.info("forecast_generated", extra={
+            "user_id": current_user.id,
+            "algorithm": algorithm,
+            "forecast_days": forecast_days,
+            "mape": forecast_result.mape
+        })
+        return forecast_data
 
-    # Serialize forecast
-    forecast_data = {
-        "algorithm": forecast_result.algorithm,
-        "forecast_points": [
-            {
-                "date": p.date,
-                "predicted_cost": p.predicted_cost,
-                "lower_bound": p.lower_bound,
-                "upper_bound": p.upper_bound,
-                "confidence": p.confidence
-            }
-            for p in forecast_result.forecast_points
-        ],
-        "metrics": {
-            "rmse": forecast_result.rmse,
-            "mape": forecast_result.mape,
-            "trend": forecast_result.trend,
-            "seasonality_detected": forecast_result.seasonality_detected,
-        },
-        "summary": forecaster.get_forecast_summary(forecast_result),
-        "anomalies": [{"date": a[0], "anomaly_score": a[1]} for a in forecast_result.anomalies],
-        "metadata": forecast_result.metadata
-    }
-
-    return forecast_data
+    except ValidationError as e:
+        raise e.to_http_exception()
+    except InsufficientDataError as e:
+        raise e.to_http_exception()
+    except InvalidAlgorithmError as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"forecast_error: {str(e)}", exc_info=True, extra={"user_id": current_user.id})
+        raise handle_exception(e, "forecast")
 
 
 @app.get("/api/forecast/budget")
@@ -679,19 +765,44 @@ def record_audit_event(
     current_user: User = Depends(get_current_user),
 ):
     """Record an audit event for compliance logging"""
-    event = compliance_manager.record_audit_event(
-        event_type=AuditEventType[event_data.get("event_type", "COST_RECORDED")],
-        user_id=current_user.id,
-        resource_type=event_data.get("resource_type", ""),
-        action=event_data.get("action", ""),
-        resource_id=event_data.get("resource_id", ""),
-        old_values=event_data.get("old_values", {}),
-        new_values=event_data.get("new_values", {}),
-        ip_address=event_data.get("ip_address"),
-        status=event_data.get("status", "success"),
-        error_message=event_data.get("error_message")
-    )
-    return {"event_id": event.event_id, "timestamp": event.timestamp.isoformat()}
+    try:
+        if not event_data or not isinstance(event_data, dict):
+            raise ValidationError("event_data must be a non-empty dictionary")
+
+        event_type_str = event_data.get("event_type", "COST_RECORDED")
+
+        # Validate event type
+        try:
+            event_type = AuditEventType[event_type_str]
+        except KeyError:
+            valid_types = list(AuditEventType.__members__.keys())
+            raise InvalidFrameworkError(event_type_str, valid_types)
+
+        logger.info("audit_event_recorded", extra={
+            "user_id": current_user.id,
+            "event_type": event_type_str,
+            "resource_type": event_data.get("resource_type")
+        })
+
+        event = compliance_manager.record_audit_event(
+            event_type=event_type,
+            user_id=current_user.id,
+            resource_type=event_data.get("resource_type", ""),
+            action=event_data.get("action", ""),
+            resource_id=event_data.get("resource_id", ""),
+            old_values=event_data.get("old_values", {}),
+            new_values=event_data.get("new_values", {}),
+            ip_address=event_data.get("ip_address"),
+            status=event_data.get("status", "success"),
+            error_message=event_data.get("error_message")
+        )
+        return {"event_id": event.event_id, "timestamp": event.timestamp.isoformat()}
+
+    except (ValidationError, InvalidFrameworkError) as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"audit_event_error: {str(e)}", exc_info=True, extra={"user_id": current_user.id})
+        raise handle_exception(e, "record_audit_event")
 
 
 @app.get("/api/compliance/report")
@@ -703,35 +814,54 @@ def get_compliance_report(
 ):
     """Generate compliance report for specified framework"""
     try:
+        # Validate framework
+        valid_frameworks = list(ComplianceFramework.__members__.keys())
+        if framework.upper() not in valid_frameworks:
+            raise InvalidFrameworkError(framework, valid_frameworks)
+
         framework_enum = ComplianceFramework[framework.upper()]
-    except KeyError:
-        return {"error": f"Invalid framework. Supported: {[f.value for f in ComplianceFramework]}"}
 
-    # Get cost summary
-    period_start = datetime.utcnow() - timedelta(days=period_days)
-    costs_data = db.query(Cost).filter(
-        and_(
-            Cost.user_id == current_user.id,
-            Cost.timestamp >= period_start
+        logger.info("compliance_report_requested", extra={
+            "user_id": current_user.id,
+            "framework": framework,
+            "period_days": period_days
+        })
+
+        # Get cost summary
+        period_start = datetime.utcnow() - timedelta(days=period_days)
+        costs_data = db.query(Cost).filter(
+            and_(
+                Cost.user_id == current_user.id,
+                Cost.timestamp >= period_start
+            )
+        ).all()
+
+        total_cost = sum(c.total_cost for c in costs_data)
+        cost_summary = {
+            "num_operations": len(costs_data),
+            "total": total_cost
+        }
+
+        # Generate report
+        report = compliance_manager.generate_compliance_report(
+            framework=framework_enum,
+            user_id=current_user.id,
+            organization=current_user.name,
+            period_days=period_days,
+            cost_summary=cost_summary
         )
-    ).all()
 
-    total_cost = sum(c.total_cost for c in costs_data)
-    cost_summary = {
-        "num_operations": len(costs_data),
-        "total": total_cost
-    }
+        logger.info("compliance_report_generated", extra={
+            "user_id": current_user.id,
+            "framework": framework
+        })
+        return report.to_dict()
 
-    # Generate report
-    report = compliance_manager.generate_compliance_report(
-        framework=framework_enum,
-        user_id=current_user.id,
-        organization=current_user.name,
-        period_days=period_days,
-        cost_summary=cost_summary
-    )
-
-    return report.to_dict()
+    except InvalidFrameworkError as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"compliance_report_error: {str(e)}", exc_info=True, extra={"user_id": current_user.id})
+        raise handle_exception(e, "compliance_report")
 
 
 @app.get("/api/compliance/verify")
@@ -742,34 +872,52 @@ def verify_compliance(
 ):
     """Verify compliance against framework requirements"""
     try:
+        # Validate framework
+        valid_frameworks = list(ComplianceFramework.__members__.keys())
+        if framework.upper() not in valid_frameworks:
+            raise InvalidFrameworkError(framework, valid_frameworks)
+
         framework_enum = ComplianceFramework[framework.upper()]
-    except KeyError:
-        return {"error": f"Invalid framework. Supported: {[f.value for f in ComplianceFramework]}"}
 
-    # Generate report
-    period_start = datetime.utcnow() - timedelta(days=30)
-    costs_data = db.query(Cost).filter(
-        and_(
-            Cost.user_id == current_user.id,
-            Cost.timestamp >= period_start
+        logger.info("compliance_verify_requested", extra={
+            "user_id": current_user.id,
+            "framework": framework
+        })
+
+        # Generate report
+        period_start = datetime.utcnow() - timedelta(days=30)
+        costs_data = db.query(Cost).filter(
+            and_(
+                Cost.user_id == current_user.id,
+                Cost.timestamp >= period_start
+            )
+        ).all()
+
+        cost_summary = {
+            "num_operations": len(costs_data),
+            "total": sum(c.total_cost for c in costs_data)
+        }
+
+        report = compliance_manager.generate_compliance_report(
+            framework=framework_enum,
+            user_id=current_user.id,
+            organization=current_user.name,
+            period_days=30,
+            cost_summary=cost_summary
         )
-    ).all()
 
-    cost_summary = {
-        "num_operations": len(costs_data),
-        "total": sum(c.total_cost for c in costs_data)
-    }
+        # Get compliance summary
+        logger.info("compliance_verified", extra={
+            "user_id": current_user.id,
+            "framework": framework
+        })
+        return compliance_manager.get_compliance_summary(report, framework_enum)
 
-    report = compliance_manager.generate_compliance_report(
-        framework=framework_enum,
-        user_id=current_user.id,
-        organization=current_user.name,
-        period_days=30,
-        cost_summary=cost_summary
-    )
-
-    # Get compliance summary
-    return compliance_manager.get_compliance_summary(report, framework_enum)
+    except InvalidFrameworkError as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"compliance_verify_error: {str(e)}", exc_info=True, extra={"user_id": current_user.id})
+        raise handle_exception(e, "verify_compliance")
 
 
 @app.get("/api/compliance/audit-trail")
@@ -779,41 +927,65 @@ def get_audit_trail(
     format: str = Query("json")
 ):
     """Get audit trail export"""
-    period_start = datetime.utcnow() - timedelta(days=90)
-    costs_data = db.query(Cost).filter(
-        and_(
-            Cost.user_id == current_user.id,
-            Cost.timestamp >= period_start
+    try:
+        # Validate format
+        valid_formats = ["json", "csv"]
+        if format.lower() not in valid_formats:
+            raise ValidationError(f"format must be one of {valid_formats}, got '{format}'")
+
+        logger.info("audit_trail_requested", extra={
+            "user_id": current_user.id,
+            "format": format
+        })
+
+        period_start = datetime.utcnow() - timedelta(days=90)
+        costs_data = db.query(Cost).filter(
+            and_(
+                Cost.user_id == current_user.id,
+                Cost.timestamp >= period_start
+            )
+        ).all()
+
+        report = compliance_manager.generate_compliance_report(
+            framework=ComplianceFramework.SOC2,
+            user_id=current_user.id,
+            organization=current_user.name,
+            period_days=90,
+            cost_summary={"num_operations": len(costs_data), "total": sum(c.total_cost for c in costs_data)}
         )
-    ).all()
 
-    report = compliance_manager.generate_compliance_report(
-        framework=ComplianceFramework.SOC2,
-        user_id=current_user.id,
-        organization=current_user.name,
-        period_days=90,
-        cost_summary={"num_operations": len(costs_data), "total": sum(c.total_cost for c in costs_data)}
-    )
+        if format.lower() == "csv":
+            logger.info("audit_trail_exported", extra={"user_id": current_user.id, "format": "csv"})
+            return compliance_manager.export_audit_trail_csv(report)
+        else:
+            logger.info("audit_trail_exported", extra={"user_id": current_user.id, "format": "json"})
+            return json.loads(compliance_manager.generate_audit_trail_json(report))
 
-    if format.lower() == "csv":
-        return compliance_manager.export_audit_trail_csv(report)
-    else:
-        return json.loads(compliance_manager.generate_audit_trail_json(report))
+    except ValidationError as e:
+        raise e.to_http_exception()
+    except Exception as e:
+        logger.error(f"audit_trail_error: {str(e)}", exc_info=True, extra={"user_id": current_user.id})
+        raise handle_exception(e, "get_audit_trail")
 
 
 @app.get("/api/compliance/frameworks")
 def get_supported_frameworks():
     """Get list of supported compliance frameworks"""
-    return {
-        "frameworks": [
-            {
-                "name": f.value.upper(),
-                "display_name": f.name,
-                "rules": compliance_manager.compliance_rules[f]
-            }
-            for f in ComplianceFramework
-        ]
-    }
+    try:
+        logger.info("frameworks_requested")
+        return {
+            "frameworks": [
+                {
+                    "name": f.value.upper(),
+                    "display_name": f.name,
+                    "rules": compliance_manager.compliance_rules[f]
+                }
+                for f in ComplianceFramework
+            ]
+        }
+    except Exception as e:
+        logger.error(f"frameworks_error: {str(e)}", exc_info=True)
+        raise handle_exception(e, "get_supported_frameworks")
 
 
 # ============================================================================
