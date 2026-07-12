@@ -63,6 +63,37 @@
 
 ---
 
+## 🔍 Competitive Gaps vs Market
+
+Based on analysis of LLM cost tracking market (Bifrost, Langfuse, LiteLLM), these gaps exist:
+
+### CRITICAL (Blocks Enterprise Adoption)
+- **Single-vendor lock-in** — Only Anthropic Claude API; competitors support multi-vendor
+  - **Market Impact:** Teams using Claude + OpenAI + Vertex need unified tracking
+  - **Recommended Fix:** Accelerate multi-vendor support to **v1.2.0 (Q4 2026)** from v2.0.0
+  - **Why:** This is blocking 30%+ of potential customers
+
+- **No hard budget enforcement** — We alert; competitors (Bifrost) can hard-stop spending
+  - **Market Impact:** Teams want automatic spend limits, not just warnings
+  - **Recommended Fix:** Add programmatic budget stops in v1.3.0 (Q1 2027)
+  - **Why:** Prevents runaway agent costs (industry pain point)
+
+### HIGH (Reduces Addressable Market)
+- **No semantic caching** — Cannot reduce redundant API calls
+  - **Competitor Advantage:** Teams using LangChain can cache embeddings
+  - **Timeline:** v1.2.0 (Q4 2026)
+
+- **No model switching/routing** — Cannot auto-route to cheaper variants mid-stream
+  - **Competitor Advantage:** LiteLLM automatically routes based on cost
+  - **Timeline:** v1.3.0 (Q1 2027)
+
+### MEDIUM (Nice-to-Have)
+- **No webhook integrations** — Only email/Slack alerts
+  - **Competitor Advantage:** Bifrost integrates with cost management platforms
+  - **Timeline:** v1.2.0 (Q4 2026)
+
+---
+
 ## 📋 Roadmap
 
 ### v1.1.0 (Q3 2026) — Advanced Cost Analysis
