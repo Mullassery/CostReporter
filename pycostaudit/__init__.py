@@ -15,6 +15,18 @@ from . import (
     user_context,
 )
 
+# CRITICAL: Hard budget enforcement (prevents runaway costs)
+from ._budget_enforcement import (
+    BudgetEnforcer,
+    BudgetLimit,
+    BudgetStatus,
+    BudgetPeriod,
+    EnforcementAction,
+    BudgetExceededError,
+    get_global_enforcer,
+    set_budget_limit,
+)
+
 __all__ = [
     "advanced_filters",
     "custom_report_builder",
@@ -22,4 +34,13 @@ __all__ = [
     "detailed_recommendations",
     "interactive_guide",
     "user_context",
+    # Budget enforcement (v1.3.0+)
+    "BudgetEnforcer",
+    "BudgetLimit",
+    "BudgetStatus",
+    "BudgetPeriod",
+    "EnforcementAction",
+    "BudgetExceededError",
+    "get_global_enforcer",
+    "set_budget_limit",
 ]
