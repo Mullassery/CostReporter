@@ -24,9 +24,20 @@ OpenAnchor (uses this): https://github.com/Mullassery/openanchor
 __version__ = "0.5.0"
 __author__ = "Georgi Mammen Mullassery"
 
-# Core cost calculation classes
-from .cost_calculator import CostCalculator
+# Core cost calculation classes (v0.5 and v0.6)
+from .cost_calculator import CostCalculator, CostCalculatorV6
 from .cost_model import Cost, ProviderType
+from .cost_models import (
+    UsageData,
+    CostModel,
+    CostModelRegistry,
+    ClaudeTokenModel,
+    GPT4oTokenModel,
+    GeminiCharacterModel,
+    GroqSpeedTieredModel,
+    DeepInfraTokenModel,
+    TogetherAITokenModel,
+)
 from .pricing_manager import PricingManager
 from .database import DatabaseManager
 from .persistence import CostDatabase
@@ -44,13 +55,24 @@ from ._budget_enforcement import (
 )
 
 __all__ = [
-    # Core v0.5
+    # Core v0.5 (backwards compatible)
     "CostCalculator",
     "Cost",
     "ProviderType",
     "PricingManager",
     "DatabaseManager",
     "CostDatabase",
+    # v0.6 multi-provider (NEW)
+    "CostCalculatorV6",
+    "UsageData",
+    "CostModel",
+    "CostModelRegistry",
+    "ClaudeTokenModel",
+    "GPT4oTokenModel",
+    "GeminiCharacterModel",
+    "GroqSpeedTieredModel",
+    "DeepInfraTokenModel",
+    "TogetherAITokenModel",
     # Budget enforcement (safety feature)
     "BudgetEnforcer",
     "BudgetLimit",

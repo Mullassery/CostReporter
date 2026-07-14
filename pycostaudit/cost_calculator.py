@@ -1,6 +1,6 @@
 """
-Cost calculation engine for PyCostAudit.
-Calculates real costs from Claude Code usage and Anthropic pricing.
+PyTokenCalc v0.6: Multi-provider token cost calculator.
+Calculates real costs from LLM API usage with provider-specific token models.
 """
 
 from dataclasses import dataclass
@@ -9,11 +9,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import json
 from collections import defaultdict
+from .cost_models import UsageData, CostModelRegistry
 
 
 @dataclass
 class ModelPricing:
-    """Pricing for different Claude models"""
+    """Pricing for different LLM models (legacy, for backwards compatibility)"""
     name: str
     input_rate: float  # per 1M tokens
     output_rate: float  # per 1M tokens
@@ -21,9 +22,10 @@ class ModelPricing:
 
 
 class PricingModel:
-    """Anthropic pricing database"""
+    """Multi-provider pricing database with legacy Claude support"""
 
     MODELS = {
+        # Anthropic Claude
         "claude-3-5-sonnet": ModelPricing(
             name="Claude 3.5 Sonnet",
             input_rate=3.00,
@@ -41,6 +43,33 @@ class PricingModel:
             input_rate=15.00,
             output_rate=75.00,
             context_window=200_000
+        ),
+        # OpenAI GPT
+        "gpt-4o": ModelPricing(
+            name="GPT-4o",
+            input_rate=2.50,
+            output_rate=10.00,
+            context_window=128_000
+        ),
+        "gpt-4o-mini": ModelPricing(
+            name="GPT-4o Mini",
+            input_rate=0.15,
+            output_rate=0.60,
+            context_window=128_000
+        ),
+        # Google Gemini
+        "gemini-2-flash": ModelPricing(
+            name="Gemini 2 Flash",
+            input_rate=0.000000375,
+            output_rate=0.0000015,
+            context_window=1_000_000
+        ),
+        # Open-source APIs
+        "llama-70b": ModelPricing(
+            name="Llama 70B",
+            input_rate=0.23,
+            output_rate=0.23,
+            context_window=8_000
         ),
     }
 
@@ -68,6 +97,91 @@ class SessionCost:
     estimated_tokens_out: int
     cost_usd: float
     breakdown: Dict[str, float]  # "input": X, "output": Y
+
+
+class CostCalculatorV6:
+    """
+    PyTokenCalc v0.6: Multi-provider cost calculator with provider-specific token models.
+    Supports 20+ cloud providers and 10+ open-source APIs with accurate cost calculation.
+    """
+
+    def __init__(self):
+        self.model_registry = CostModelRegistry()
+        self.costs_tracked: List[UsageData] = []
+
+    def calculate(self, usage: UsageData) -> float:
+        """Calculate cost using provider-specific model"""
+        cost = self.model_registry.calculate_cost(usage)
+        self.costs_tracked.append(usage)
+        return cost
+
+    def calculate_batch(self, usages: List[UsageData]) -> List[float]:
+        """Calculate costs for multiple operations"""
+        return [self.calculate(usage) for usage in usages]
+
+    def total_cost(self, provider: Optional[str] = None, model: Optional[str] = None) -> float:
+        """Get total cost with optional filters"""
+        total = 0.0
+        for usage in self.costs_tracked:
+            if provider and usage.provider != provider:
+                continue
+            if model and usage.model != model:
+                continue
+            cost = self.model_registry.calculate_cost(usage)
+            total += cost
+        return total
+
+    def cost_by_provider(self) -> Dict[str, float]:
+        """Breakdown costs by provider"""
+        breakdown = defaultdict(float)
+        for usage in self.costs_tracked:
+            cost = self.model_registry.calculate_cost(usage)
+            breakdown[usage.provider] += cost
+        return dict(breakdown)
+
+    def cost_by_model(self) -> Dict[str, float]:
+        """Breakdown costs by model"""
+        breakdown = defaultdict(float)
+        for usage in self.costs_tracked:
+            cost = self.model_registry.calculate_cost(usage)
+            breakdown[usage.model] += cost
+        return dict(breakdown)
+
+    def cost_by_task_type(self) -> Dict[str, float]:
+        """Breakdown costs by task type"""
+        breakdown = defaultdict(float)
+        for usage in self.costs_tracked:
+            task = usage.task_type or "unspecified"
+            cost = self.model_registry.calculate_cost(usage)
+            breakdown[task] += cost
+        return dict(breakdown)
+
+    def get_tracked_operations(self) -> List[UsageData]:
+        """Get all tracked operations"""
+        return self.costs_tracked.copy()
+
+    def clear(self):
+        """Clear all tracked costs"""
+        self.costs_tracked.clear()
+
+    def export(self) -> List[Dict]:
+        """Export tracked costs as dictionaries"""
+        exported = []
+        for usage in self.costs_tracked:
+            cost = self.model_registry.calculate_cost(usage)
+            exported.append({
+                "provider": usage.provider,
+                "model": usage.model,
+                "timestamp": usage.timestamp.isoformat(),
+                "input_tokens": usage.input_tokens,
+                "output_tokens": usage.output_tokens,
+                "input_characters": usage.input_characters,
+                "output_characters": usage.output_characters,
+                "speed_tier": usage.speed_tier,
+                "cost_usd": cost,
+                "task_type": usage.task_type,
+            })
+        return exported
 
 
 class CostCalculator:
