@@ -119,9 +119,11 @@ print(breakdown)  # {"anthropic": 10.50, "openai": 5.56, "google": 1.125}
 
 ### ✅ Cost Calculation (v0.5+)
 - Multi-provider cost calculation (20+ cloud, 10+ open-source)
+- Provider-specific token models (Claude, GPT-4o, Gemini, Groq, etc.)
 - Real-time pricing updates
-- Budget enforcement (hard limits)
-- Per-request cost precision (use OpenAnchor for tracking & optimization)
+- Budget enforcement (hard limits per day/month)
+
+**Cost tracking, reporting, and optimization → OpenAnchor**
 
 ### ✅ Token Counting Performance
 | Tokenizer | Provider | Speed | Accuracy | Cost |
@@ -259,26 +261,21 @@ from pytokencalc import UsageData, CostCalculatorV6
 
 calc = CostCalculatorV6()
 
-# Single cost
+# Single request cost
 usage = UsageData(
     provider="anthropic",
     model="claude-3-5-sonnet",
     input_tokens=1_000_000,
-    output_tokens=500_000,
-    task_type="analysis"
+    output_tokens=500_000
 )
 cost = calc.calculate(usage)
+print(f"This request cost: ${cost:.4f}")
 
-# Batch costs
+# Batch costs (multiple requests)
 costs = calc.calculate_batch([usage1, usage2, usage3])
+print(f"Total: ${sum(costs):.4f}")
 
-# Breakdowns
-by_provider = calc.cost_by_provider()
-by_model = calc.cost_by_model()
-by_task = calc.cost_by_task_type()
-
-# Export audit trail
-export = calc.export()
+# For cost breakdowns (by provider/model/task) → use OpenAnchor
 ```
 
 ### Budget Enforcement
