@@ -1,5 +1,5 @@
 """
-PyCostAudit-Multi v0.5: Multi-API Cost Calculation Core
+PyTokenCalc v0.5: Multi-Provider LLM Token Cost Calculator
 
 Unified cost calculation and tracking across 20+ cloud providers and 10+ open-source APIs.
 This is the cost calculation core that powers OpenAnchor.
@@ -10,14 +10,14 @@ v0.5 Scope (Cost Calculation Only):
 - PricingManager: Provider pricing + daily updates
 - Budget Enforcement: Hard limits to prevent cost overruns
 
-NOT included in v0.5 (deferred to v0.2+):
+NOT included in v0.5 (deferred to future versions):
 - Forecasting/ML predictions
 - Dashboards/web UI
 - Compliance/audit tracking
 - Recommendations (that's OpenAnchor's job)
 - Advanced reporting/analytics
 
-Documentation: https://github.com/Mullassery/PyCostAudit
+Documentation: https://github.com/Mullassery/PyTokenCalc
 OpenAnchor (uses this): https://github.com/Mullassery/openanchor
 """
 

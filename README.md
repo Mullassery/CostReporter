@@ -1,13 +1,13 @@
-# PyCostAudit-Multi v0.5: Multi-API Cost Calculation Core
+# PyTokenCalc v0.5: Multi-Provider LLM Token Cost Calculator
 
-[![PyPI version](https://badge.fury.io/py/pycostaudit.svg)](https://pypi.org/project/pycostaudit/)
+[![PyPI version](https://badge.fury.io/py/pytokencalc.svg)](https://pypi.org/project/pytokencalc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![GitHub](https://img.shields.io/badge/GitHub-PyCostAudit-black.svg)](https://github.com/Mullassery/PyCostAudit)
+[![GitHub](https://img.shields.io/badge/GitHub-PyTokenCalc-black.svg)](https://github.com/Mullassery/PyTokenCalc)
 
 **Unified LLM cost calculation across 20+ cloud providers and 10+ open-source APIs.**
 
-PyCostAudit-Multi is the cost calculation core that powers [OpenAnchor](https://github.com/Mullassery/openanchor) (cost optimization middleware) and provides accurate, real-time cost tracking for teams using multiple LLM APIs.
+PyTokenCalc is the cost calculation core that powers [OpenAnchor](https://github.com/Mullassery/openanchor) (cost optimization middleware) and provides accurate, real-time cost tracking for teams using multiple LLM APIs.
 
 ---
 
@@ -115,9 +115,9 @@ latest = pricing.get_current_rate(provider="anthropic", model="claude-3-5-sonnet
 
 ### Installation
 ```bash
-pip install pycostaudit
+pip install pytokencalc
 # or
-uv pip install pycostaudit
+uv pip install pytokencalc
 ```
 
 ### Basic Usage
@@ -145,15 +145,15 @@ print(f"Daily spend: ${report['total']:.2f}")
 
 ### With OpenAnchor
 ```python
-from pycostaudit_multi import CostCalculator
+from pytokencalc import CostCalculator
 from openanchor import CostOptimizer
 
-# OpenAnchor uses PyCostAudit-Multi for cost calculation
+# OpenAnchor uses PyTokenCalc for cost calculation
 optimizer = CostOptimizer()
 llm = optimizer.wrap(your_llm)
 
 response = llm.invoke("Analyze this document...")
-# OpenAnchor internally calls PyCostAudit-Multi to calculate costs
+# OpenAnchor internally calls PyTokenCalc to calculate costs
 ```
 
 ---
@@ -279,15 +279,16 @@ except BudgetExceededError as e:
 
 ## Version History
 
-### v0.5.0 (July 2026) - Focus
-**Scope Cleanup Release**
+### v0.5.0 (July 2026) - Multi-Provider Launch
+**Renamed: PyCostAudit → PyTokenCalc (reflects multi-LLM focus)**
 - Removed: Forecasting, dashboards, compliance, reporting, recommendations
 - Kept: Cost calculation core + budget enforcement
 - Result: Laser-focused, 87% code reduction
 - Focus: Multi-API cost calculation for OpenAnchor
+- Supports: 20+ cloud providers + 10+ open-source APIs
 
-### v0.4.1 (June 2026)
-- Claude Code cost tracking
+### v0.4.1 (June 2026) - Claude Code Only
+- Claude Code cost tracking (single provider)
 - Forecasting + compliance features
 - Interactive dashboard
 - **Status:** Archived, use v0.5+ instead
@@ -298,10 +299,10 @@ except BudgetExceededError as e:
 
 ### 1. OpenAnchor Integration (Primary)
 ```python
-from pycostaudit_multi import CostCalculator
+from pytokencalc import CostCalculator
 from openanchor import CostOptimizer
 
-# OpenAnchor uses PyCostAudit-Multi for cost tracking
+# OpenAnchor uses PyTokenCalc for cost tracking
 optimizer = CostOptimizer()
 ```
 
@@ -380,13 +381,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Resources
 
-- [OpenAnchor](https://github.com/Mullassery/openanchor) - Cost optimization middleware (uses PyCostAudit-Multi)
+- [OpenAnchor](https://github.com/Mullassery/openanchor) - Cost optimization middleware (uses PyTokenCalc)
 - [Anthropic Pricing](https://www.anthropic.com/pricing)
 - [OpenAI Pricing](https://openai.com/pricing)
 - [Google Pricing](https://ai.google.dev/pricing)
 
 ---
 
-**PyCostAudit-Multi v0.5: Know your LLM costs. Across all APIs. In real-time.**
+**PyTokenCalc v0.5: Know your LLM costs. Across all APIs. In real-time.**
 
 This is the cost calculation core that powers OpenAnchor. Simple. Focused. Accurate.

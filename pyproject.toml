@@ -3,35 +3,30 @@ requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin.build"
 
 [project]
-name = "pycostaudit"
-version = "1.0.0"
-description = "Track Claude API costs across 15+ dimensions — ML forecasting, budget alerts, compliance reporting. Identify hidden cost multipliers (3.6x-1000x) and save 50-80% on LLM spending."
+name = "pytokencalc"
+version = "0.5.0"
+description = "Multi-API LLM cost calculation core. Unified cost tracking across 20+ cloud providers and 10+ open-source APIs. The cost foundation for OpenAnchor and autonomous agent frameworks."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 maintainers = [{ name = "Georgi Mammen Mullassery", email = "mullassery@gmail.com" }]
 keywords = [
-    "claude",
     "llm",
+    "cost-calculation",
     "cost-tracking",
-    "cost-optimization",
-    "budget-monitoring",
-    "api-costs",
-    "machine-learning",
-    "forecasting",
-    "time-series",
-    "arima",
-    "compliance",
-    "soc2",
-    "hipaa",
-    "gdpr",
-    "audit-trail",
+    "token-counting",
+    "multi-provider",
+    "budget-enforcement",
     "anthropic",
+    "openai",
+    "google",
+    "groq",
+    "deepinfra",
+    "api-costs",
     "ai-cost-management",
-    "financial-analytics",
     "usage-tracking",
-    "billing-optimization"
+    "openanchor"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -86,7 +81,7 @@ Changelog = "https://github.com/Mullassery/PyCostAudit/releases"
 Discussions = "https://github.com/Mullassery/PyCostAudit/discussions"
 
 [tool.maturin]
-module-name = "pycostaudit._core"
+module-name = "pytokencalc._core"
 manifest-path = "python/Cargo.toml"
 python-source = "python/src"
 
