@@ -1,189 +1,213 @@
 #!/usr/bin/env python3
 """
-PyTokenCalc v0.7 Quick Start Example
+PyTokenCalc v0.7 Quick Start Examples
 
 Shows how to:
 1. Count tokens for different models
-2. Calculate costs across providers
-3. Track operations and get breakdowns
+2. Use intelligent routing (local vs cached API)
+3. Batch count tokens
+4. Check cache performance
 """
 
-from pytokencalc import CostCalculatorV6, UsageData
 from pytokencalc.tokenizers import TokenCounterRegistry
 
 
-def token_counting_example():
-    """Demonstrate token counting across providers"""
+def single_count_example():
+    """Demonstrate basic token counting"""
     print("\n" + "=" * 60)
-    print("TOKEN COUNTING EXAMPLE")
+    print("SINGLE TOKEN COUNT EXAMPLE")
     print("=" * 60)
 
     registry = TokenCounterRegistry()
 
-    # Count tokens for different models
+    text = "Write me a Python function that calculates the Fibonacci sequence using dynamic programming."
+
+    # Count tokens for a model
+    result = registry.count_tokens("gpt-4o", text)
+
+    print(f"\nText: {text}")
+    print(f"Model: gpt-4o")
+    print(f"Tokens: {result.input_tokens}")
+    print(f"Source: {result.source}")  # 'local' for GPT, 'api' for Claude, etc.
+    print(f"Latency: {result.latency_ms:.1f}ms")
+
+
+def multi_model_example():
+    """Count tokens across multiple providers"""
+    print("\n" + "=" * 60)
+    print("MULTI-MODEL TOKEN COUNTING")
+    print("=" * 60)
+
+    registry = TokenCounterRegistry()
+
     text = "Your prompt here: Analyze this data and provide insights."
 
-    models = ["gpt-4o", "llama-70b", "claude-3-5-sonnet"]
+    # Count for different models
+    models = [
+        "gpt-4o",              # OpenAI (local with tiktoken)
+        "gpt-4o-mini",         # OpenAI mini (local)
+        "llama-70b",           # Open-source (local or API)
+        "claude-3-5-sonnet",   # Anthropic (API, cached)
+        "gemini-2-flash",      # Google (API, cached)
+    ]
+
+    print(f"\nText: {text[:40]}...")
+    print(f"\n{'Model':<25} {'Tokens':>8} {'Source':<8} {'Latency':>10}")
+    print("-" * 55)
+
     for model in models:
         try:
             result = registry.count_tokens(model, text)
-            print(f"{model:20} → {result.input_tokens:4d} tokens (source: {result.source})")
+            print(f"{model:<25} {result.input_tokens:>8} {result.source:<8} {result.latency_ms:>9.1f}ms")
         except Exception as e:
-            print(f"{model:20} → Error: {str(e)[:40]}")
+            print(f"{model:<25} {'ERROR':<8} {str(e)[:30]}")
 
 
-def cost_calculation_example():
-    """Demonstrate cost calculation across providers"""
+def caching_example():
+    """Demonstrate automatic caching behavior"""
     print("\n" + "=" * 60)
-    print("COST CALCULATION EXAMPLE")
+    print("CACHING EXAMPLE - 70-80% Fewer API Calls")
     print("=" * 60)
 
-    calc = CostCalculatorV6()
+    registry = TokenCounterRegistry()
 
-    # Example 1: Claude (simple input/output model)
-    print("\n1️⃣ Claude 3.5 Sonnet")
-    usage = UsageData(
-        provider="anthropic",
-        model="claude-3-5-sonnet",
-        input_tokens=1_000_000,
-        output_tokens=500_000,
-        task_type="analysis"
-    )
-    cost = calc.calculate(usage)
-    print(f"   1M input + 500K output tokens → ${cost:.4f}")
+    text = "Python function for Fibonacci sequence"
+    model = "gpt-4o"
 
-    # Example 2: GPT-4o (dual token model: full + mini)
-    print("\n2️⃣ GPT-4o (with mini tokens)")
-    usage = UsageData(
-        provider="openai",
-        model="gpt-4o",
-        input_tokens=1_000_000,
-        input_mini_tokens=500_000,  # Mini tokens cheaper
-        output_tokens=250_000,
-        task_type="coding"
-    )
-    cost = calc.calculate(usage)
-    print(f"   1M full + 500K mini input tokens → ${cost:.4f}")
+    # First call: not cached
+    print(f"\nFirst call to count_tokens('{model}', '{text}'):")
+    result1 = registry.count_tokens(model, text)
+    print(f"  Tokens: {result1.input_tokens}")
+    print(f"  Source: {result1.source}")
+    print(f"  Latency: {result1.latency_ms:.2f}ms")
+    print(f"  Cached: {result1.cached}")
 
-    # Example 3: Gemini (character-based)
-    print("\n3️⃣ Gemini 2 Flash (character-based billing)")
-    usage = UsageData(
-        provider="google",
-        model="gemini-2-flash",
-        input_characters=1_000_000_000,  # 1B characters
-        output_characters=500_000_000,
-        task_type="summarization"
-    )
-    cost = calc.calculate(usage)
-    print(f"   1B input + 500M output characters → ${cost:.4f}")
+    # Second call: CACHED (instant!)
+    print(f"\nSecond call (same model + text):")
+    result2 = registry.count_tokens(model, text)
+    print(f"  Tokens: {result2.input_tokens}")
+    print(f"  Source: {result2.source}")
+    print(f"  Latency: {result2.latency_ms:.2f}ms (CACHED!)")
+    print(f"  Cached: {result2.cached}")
 
-    # Example 4: Groq (speed-tiered)
-    print("\n4️⃣ Groq Llama 70B (speed-tiered)")
-    usage = UsageData(
-        provider="groq",
-        model="llama-70b",
-        input_tokens=1_000_000,
-        output_tokens=500_000,
-        speed_tier="standard",
-        task_type="reasoning"
-    )
-    cost = calc.calculate(usage)
-    print(f"   Standard tier: ${cost:.4f}")
-
-    usage.speed_tier = "fastest"
-    cost = calc.calculate(usage)
-    print(f"   Fastest tier:  ${cost:.4f}")
-
-    # Example 5: Cost breakdown
-    print("\n5️⃣ Cost Breakdown")
-    print(f"   By provider: {calc.cost_by_provider()}")
-    print(f"   By model:    {calc.cost_by_model()}")
-    print(f"   By task:     {calc.cost_by_task_type()}")
-    print(f"   Total:       ${calc.total_cost():.4f}")
+    # Verify identical results
+    assert result1.input_tokens == result2.input_tokens
+    print(f"\n✅ Results identical: {result1.input_tokens} == {result2.input_tokens}")
 
 
-def batch_operations_example():
-    """Demonstrate batch operations"""
+def batch_count_example():
+    """Batch count tokens for multiple prompts"""
     print("\n" + "=" * 60)
-    print("BATCH OPERATIONS EXAMPLE")
+    print("BATCH TOKEN COUNTING")
     print("=" * 60)
 
-    calc = CostCalculatorV6()
+    registry = TokenCounterRegistry()
 
-    operations = [
-        UsageData(
-            provider="anthropic",
-            model="claude-3-5-sonnet",
-            input_tokens=100_000,
-            output_tokens=50_000,
-            task_type="analysis"
-        ),
-        UsageData(
-            provider="openai",
-            model="gpt-4o",
-            input_tokens=100_000,
-            output_tokens=50_000,
-            task_type="coding"
-        ),
-        UsageData(
-            provider="google",
-            model="gemini-2-flash",
-            input_characters=100_000_000,
-            output_characters=50_000_000,
-            task_type="summarization"
-        ),
+    # Batch of different models + prompts
+    batch = [
+        {"model": "gpt-4o", "text": "What is machine learning?"},
+        {"model": "claude-3-5-sonnet", "text": "Explain neural networks"},
+        {"model": "llama-70b", "text": "Define deep learning"},
     ]
 
-    costs = calc.calculate_batch(operations)
-    total = sum(costs)
+    print(f"\nCounting tokens for {len(batch)} prompts:\n")
+    print(f"{'Model':<25} {'Text':<30} {'Tokens':>8}")
+    print("-" * 65)
 
-    print(f"\nBatch of 3 operations:")
-    for i, (op, cost) in enumerate(zip(operations, costs), 1):
-        print(f"  {i}. {op.provider:12} {op.model:20} → ${cost:.4f}")
+    results = registry.count_batch(batch)
 
-    print(f"\nTotal cost: ${total:.4f}")
+    for item, result in zip(batch, results):
+        text_preview = item["text"][:25] + "..." if len(item["text"]) > 25 else item["text"]
+        print(f"{item['model']:<25} {text_preview:<30} {result.input_tokens:>8}")
 
 
-def export_example():
-    """Demonstrate export functionality"""
+def smart_routing_example():
+    """Demonstrate smart routing (local vs API)"""
     print("\n" + "=" * 60)
-    print("EXPORT EXAMPLE")
+    print("SMART ROUTING: LOCAL vs API")
     print("=" * 60)
 
-    calc = CostCalculatorV6()
+    registry = TokenCounterRegistry()
+    text = "Sample text for token counting"
 
-    # Track some operations
-    calc.calculate(UsageData(
-        provider="anthropic",
-        model="claude-3-5-sonnet",
-        input_tokens=500_000,
-        output_tokens=250_000,
-        task_type="analysis"
-    ))
+    print(f"\nText: {text}\n")
+    print("Smart Routing Strategy:")
+    print("  • Local models (GPT, Llama): 5-10ms (instant, no API calls)")
+    print("  • API models (Claude, Gemini): 200ms first, 0-1ms cached\n")
 
-    calc.calculate(UsageData(
-        provider="openai",
-        model="gpt-4o",
-        input_tokens=500_000,
-        output_tokens=250_000,
-        task_type="coding"
-    ))
+    print(f"{'Model':<25} {'Strategy':<20} {'Latency':>10} {'Type':<8}")
+    print("-" * 65)
 
-    # Export all operations
-    exported = calc.export()
-    print(f"\nExported {len(exported)} operations:")
-    for op in exported:
-        print(f"  {op['provider']:12} {op['model']:20} → ${op['cost_usd']:.4f}")
+    models = {
+        "gpt-4o": ("Local (tiktoken)", "5-10ms"),
+        "llama-70b": ("Local (HF transformers)", "8-15ms"),
+        "claude-3-5-sonnet": ("Cached API", "200ms→1ms"),
+        "gemini-2-flash": ("Cached API", "200ms→1ms"),
+    }
+
+    for model, (strategy, latency) in models.items():
+        result = registry.count_tokens(model, text)
+        print(f"{model:<25} {strategy:<20} {result.latency_ms:>9.1f}ms {result.source:<8}")
+
+
+def use_case_example():
+    """Real-world use case: Monitor token usage"""
+    print("\n" + "=" * 60)
+    print("USE CASE: Monitor Token Usage Per Request")
+    print("=" * 60)
+
+    registry = TokenCounterRegistry()
+
+    def llm_request(model: str, prompt: str) -> dict:
+        """Simulate an LLM request and log token usage"""
+        # Count tokens BEFORE calling the API
+        token_result = registry.count_tokens(model, prompt)
+
+        # (In real usage, you'd call the LLM API here)
+        # response = llm_api.call(model, prompt)
+
+        return {
+            "model": model,
+            "prompt_tokens": token_result.input_tokens,
+            "prompt_preview": prompt[:40] + "..." if len(prompt) > 40 else prompt,
+        }
+
+    # Simulate multiple requests
+    requests = [
+        ("gpt-4o", "Explain quantum computing"),
+        ("claude-3-5-sonnet", "How does photosynthesis work?"),
+        ("llama-70b", "What is recursion in programming?"),
+    ]
+
+    print("\nTracking token usage across requests:\n")
+    print(f"{'Model':<25} {'Prompt':<45} {'Tokens':>8}")
+    print("-" * 80)
+
+    total_tokens = 0
+    for model, prompt in requests:
+        result = llm_request(model, prompt)
+        print(f"{result['model']:<25} {result['prompt_preview']:<45} {result['prompt_tokens']:>8}")
+        total_tokens += result['prompt_tokens']
+
+    print("-" * 80)
+    print(f"{'TOTAL':<25} {'':<45} {total_tokens:>8}")
 
 
 if __name__ == "__main__":
-    print("\n🚀 PyTokenCalc v0.7 Quick Start Guide")
+    print("\n🧮 PyTokenCalc v0.7 Quick Start Examples")
+    print("Unified token counting across 20+ LLM providers\n")
 
-    token_counting_example()
-    cost_calculation_example()
-    batch_operations_example()
-    export_example()
+    single_count_example()
+    multi_model_example()
+    smart_routing_example()
+    caching_example()
+    batch_count_example()
+    use_case_example()
 
     print("\n" + "=" * 60)
-    print("✅ Examples complete!")
+    print("✅ All examples completed!")
     print("=" * 60)
+    print("\n📚 Next steps:")
+    print("  • Read README.md for API reference")
+    print("  • Check ADDING_PROVIDERS.md to add new tokenizers")
+    print("  • For cost tracking, see: https://github.com/Mullassery/openanchor")

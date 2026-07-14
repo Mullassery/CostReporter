@@ -1,360 +1,210 @@
 """
-Tests for PyTokenCalc v0.6 multi-provider cost models.
-Demonstrates provider-specific token calculation for 20+ APIs.
+Tests for PyTokenCalc v0.7 token counting.
+Tests multi-provider token counter integration.
 """
 
 import pytest
-from datetime import datetime
-from pytokencalc import (
-    UsageData,
-    CostCalculatorV6,
-    CostModel,
-    ClaudeTokenModel,
-    GPT4oTokenModel,
-    GeminiCharacterModel,
-    GroqSpeedTieredModel,
-    DeepInfraTokenModel,
-    TogetherAITokenModel,
-    CostModelRegistry,
+from pytokencalc.tokenizers import (
+    TokenCounterRegistry,
+    TokenCountResult,
 )
 
 
-class TestClaudeTokenModel:
-    """Test Claude token-based cost model"""
+class TestTokenCounterRegistry:
+    """Test TokenCounterRegistry functionality"""
 
-    def test_claude_sonnet_cost(self):
-        """Claude 3.5 Sonnet: $3/$15 per 1M tokens"""
-        model = ClaudeTokenModel()
-        usage = UsageData(
-            provider="anthropic",
-            model="claude-3-5-sonnet",
-            input_tokens=1_000_000,
-            output_tokens=500_000
-        )
-        cost = model.calculate(usage)
-        # (1M * $3 + 500K * $15) / 1M = 3 + 7.5 = 10.5
-        assert abs(cost - 10.50) < 0.01
+    def test_registry_initialization(self):
+        """Registry initializes with built-in counters"""
+        registry = TokenCounterRegistry()
+        assert registry is not None
 
-    def test_claude_haiku_cost(self):
-        """Claude 3.5 Haiku: $0.80/$4 per 1M tokens"""
-        model = ClaudeTokenModel()
-        usage = UsageData(
-            provider="anthropic",
-            model="claude-3-5-haiku",
-            input_tokens=1_000_000,
-            output_tokens=250_000
-        )
-        cost = model.calculate(usage)
-        # (1M * $0.80 + 250K * $4) / 1M = 0.80 + 1.0 = 1.80
-        assert abs(cost - 1.80) < 0.01
+    def test_count_gpt_tokens(self):
+        """Count tokens for OpenAI GPT models"""
+        registry = TokenCounterRegistry()
+        text = "Hello world"
+        result = registry.count_tokens("gpt-4o", text)
 
+        assert isinstance(result, TokenCountResult)
+        assert result.input_tokens > 0
+        assert result.source in ["local", "cache", "formula"]
+        assert result.latency_ms > 0
 
-class TestGPT4oTokenModel:
-    """Test GPT-4o dual-token cost model (full + mini)"""
+    def test_count_llama_tokens(self):
+        """Count tokens for Llama models (HuggingFace)"""
+        registry = TokenCounterRegistry()
+        text = "Hello world"
 
-    def test_gpt4o_with_mini_tokens(self):
-        """GPT-4o uses full and mini tokens for different input types"""
-        model = GPT4oTokenModel()
-        usage = UsageData(
-            provider="openai",
-            model="gpt-4o",
-            input_tokens=1_000_000,  # Full tokens
-            input_mini_tokens=500_000,  # Mini tokens
-            output_tokens=250_000,  # Full tokens
-            output_mini_tokens=100_000  # Mini tokens
-        )
-        cost = model.calculate(usage)
-        # Input: (1M * $2.50 + 500K * $0.625) / 1M = 2.50 + 0.3125 = 2.8125
-        # Output: (250K * $10 + 100K * $2.50) / 1M = 2.50 + 0.25 = 2.75
-        # Total: 2.8125 + 2.75 = 5.5625
-        assert abs(cost - 5.5625) < 0.01
+        # Llama tokenizer might not be available in test environment
+        try:
+            result = registry.count_tokens("llama-2-7b", text)
+            assert isinstance(result, TokenCountResult)
+            assert result.input_tokens > 0
+            assert result.source in ["local", "cache", "formula"]
+        except (ValueError, RuntimeError):
+            # Expected if transformers/llama tokenizer not installed
+            pytest.skip("Llama tokenizer not available")
 
-    def test_gpt4o_mini_cost(self):
-        """GPT-4o Mini: cheaper variant"""
-        model = GPT4oTokenModel()
-        usage = UsageData(
-            provider="openai",
-            model="gpt-4o-mini",
-            input_tokens=1_000_000,
-            output_tokens=500_000
-        )
-        cost = model.calculate(usage)
-        # (1M * $0.15 + 500K * $0.60) / 1M = 0.15 + 0.30 = 0.45
-        assert abs(cost - 0.45) < 0.01
+    def test_token_count_consistency(self):
+        """Same text should produce consistent token counts"""
+        registry = TokenCounterRegistry()
+        text = "The quick brown fox jumps over the lazy dog"
+        model = "gpt-4o"
 
+        result1 = registry.count_tokens(model, text)
+        result2 = registry.count_tokens(model, text)
 
-class TestGeminiCharacterModel:
-    """Test Gemini character-based cost model (not token-based)"""
+        assert result1.input_tokens == result2.input_tokens
 
-    def test_gemini_character_cost(self):
-        """Gemini charges per character, not per token"""
-        model = GeminiCharacterModel()
-        usage = UsageData(
-            provider="google",
-            model="gemini-2-flash",
-            input_characters=1_000_000_000,  # 1 billion characters
-            output_characters=500_000_000    # 500 million characters
-        )
-        cost = model.calculate(usage)
-        # (1B * $0.000000375) + (500M * $0.0000015)
-        # = $0.375 + $0.75 = $1.125
-        assert abs(cost - 1.125) < 0.01
+    def test_caching_behavior(self):
+        """Second call for same model+text should be cached"""
+        registry = TokenCounterRegistry()
+        text = "Sample text for caching test"
+        model = "gpt-4o"
 
-    def test_gemini_fallback_to_tokens(self):
-        """Gemini can fallback to token counting if chars not provided"""
-        model = GeminiCharacterModel()
-        usage = UsageData(
-            provider="google",
-            model="gemini-2-flash",
-            input_tokens=1_000_000,  # Fallback
-            output_tokens=500_000
-        )
-        # Should validate but not calculate correctly without characters
-        assert model.validate(usage) or not model.validate(usage)
+        # First call
+        result1 = registry.count_tokens(model, text)
+        first_latency = result1.latency_ms
 
+        # Second call (should be cached and faster)
+        result2 = registry.count_tokens(model, text)
 
-class TestGroqSpeedTieredModel:
-    """Test Groq speed-tiered cost model"""
+        assert result1.input_tokens == result2.input_tokens
+        assert result2.latency_ms <= first_latency
 
-    def test_groq_standard_speed(self):
-        """Groq standard tier: base pricing"""
-        model = GroqSpeedTieredModel()
-        usage = UsageData(
-            provider="groq",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000,
-            speed_tier="standard"
-        )
-        cost = model.calculate(usage)
-        # (1M * $0.59 + 500K * $0.79) / 1M = 0.59 + 0.395 = 0.985
-        assert abs(cost - 0.985) < 0.01
+    def test_different_models_different_counts(self):
+        """Different models may have different token counts"""
+        registry = TokenCounterRegistry()
+        text = "Sample text for comparison"
 
-    def test_groq_fast_speed(self):
-        """Groq fast tier: 2x base pricing"""
-        model = GroqSpeedTieredModel()
-        usage = UsageData(
-            provider="groq",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000,
-            speed_tier="fast"
-        )
-        cost = model.calculate(usage)
-        # Standard cost * 2 = 0.985 * 2 = 1.97
-        assert abs(cost - 1.97) < 0.01
+        result_gpt = registry.count_tokens("gpt-4o", text)
+        assert result_gpt.input_tokens > 0
 
-    def test_groq_fastest_speed(self):
-        """Groq fastest tier: 3x base pricing"""
-        model = GroqSpeedTieredModel()
-        usage = UsageData(
-            provider="groq",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000,
-            speed_tier="fastest"
-        )
-        cost = model.calculate(usage)
-        # Standard cost * 3 = 0.985 * 3 = 2.955
-        assert abs(cost - 2.955) < 0.01
+        # Try llama if available, otherwise just test GPT
+        try:
+            result_llama = registry.count_tokens("llama-2-7b", text)
+            assert result_llama.input_tokens > 0
+        except (ValueError, RuntimeError):
+            pytest.skip("Llama tokenizer not available")
 
+    def test_batch_count_tokens(self):
+        """Count tokens for multiple prompts in batch"""
+        registry = TokenCounterRegistry()
+        batch = [
+            {"model": "gpt-4o", "text": "First prompt"},
+            {"model": "gpt-4o", "text": "Second prompt"},
+        ]
 
-class TestDeepInfraTokenModel:
-    """Test DeepInfra open-source API model"""
+        results = registry.count_batch(batch)
 
-    def test_deepinfra_llama70b(self):
-        """DeepInfra Llama 70B: $0.23/$0.23 per 1M tokens"""
-        model = DeepInfraTokenModel()
-        usage = UsageData(
-            provider="deepinfra",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000
-        )
-        cost = model.calculate(usage)
-        # (1M * $0.23 + 500K * $0.23) / 1M = 0.23 + 0.115 = 0.345
-        assert abs(cost - 0.345) < 0.01
+        assert len(results) == len(batch)
+        for result in results:
+            assert isinstance(result, TokenCountResult)
+            assert result.input_tokens > 0
 
-    def test_deepinfra_vs_groq_cost_comparison(self):
-        """Llama 70B: Groq $0.59 vs DeepInfra $0.23 (4.1x cheaper)"""
-        groq = GroqSpeedTieredModel()
-        deepinfra = DeepInfraTokenModel()
+    def test_empty_text(self):
+        """Empty text should return 0 tokens"""
+        registry = TokenCounterRegistry()
+        result = registry.count_tokens("gpt-4o", "")
 
-        usage_groq = UsageData(
-            provider="groq",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000,
-            speed_tier="standard"
-        )
+        assert result.input_tokens == 0
 
-        usage_deepinfra = UsageData(
-            provider="deepinfra",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000
-        )
+    def test_long_text(self):
+        """Long text should count many tokens"""
+        registry = TokenCounterRegistry()
+        text = "word " * 1000  # 1000 words
+        result = registry.count_tokens("gpt-4o", text)
 
-        cost_groq = groq.calculate(usage_groq)
-        cost_deepinfra = deepinfra.calculate(usage_deepinfra)
+        # Long text should produce many tokens
+        assert result.input_tokens > 100
 
-        savings_ratio = cost_groq / cost_deepinfra
-        # Should be approximately 2.85x cheaper (similar to real-world: $0.59 vs $0.23)
-        assert savings_ratio > 2.0
+    def test_special_characters(self):
+        """Text with special characters should count correctly"""
+        registry = TokenCounterRegistry()
+        text = "Hello! @#$%^&*() [test] {nested} <html>"
+        result = registry.count_tokens("gpt-4o", text)
 
+        assert result.input_tokens > 0
 
-class TestTogetherAITokenModel:
-    """Test Together.ai open-source API model"""
+    def test_unicode_text(self):
+        """Unicode text should count correctly"""
+        registry = TokenCounterRegistry()
+        text = "Hello 世界 🌍 Привет مرحبا"
+        result = registry.count_tokens("gpt-4o", text)
 
-    def test_together_llama70b(self):
-        """Together.ai Llama 70B: $0.88/$1.10 per 1M tokens"""
-        model = TogetherAITokenModel()
-        usage = UsageData(
-            provider="together",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000
-        )
-        cost = model.calculate(usage)
-        # (1M * $0.88 + 500K * $1.10) / 1M = 0.88 + 0.55 = 1.43
-        assert abs(cost - 1.43) < 0.01
+        assert result.input_tokens > 0
 
+    def test_whitespace_handling(self):
+        """Extra whitespace should be handled correctly"""
+        registry = TokenCounterRegistry()
+        text1 = "hello world"
+        text2 = "hello    world"  # Extra spaces
 
-class TestCostCalculatorV6:
-    """Test multi-provider cost calculator"""
+        result1 = registry.count_tokens("gpt-4o", text1)
+        result2 = registry.count_tokens("gpt-4o", text2)
 
-    def test_calculate_mixed_providers(self):
-        """Track costs across multiple providers"""
-        calc = CostCalculatorV6()
+        # Both should produce tokens
+        assert result1.input_tokens > 0
+        assert result2.input_tokens > 0
 
-        # Claude call
-        claude_usage = UsageData(
-            provider="anthropic",
-            model="claude-3-5-sonnet",
-            input_tokens=1_000_000,
-            output_tokens=500_000,
-            task_type="analysis"
-        )
+    def test_model_auto_detection(self):
+        """Registry should auto-detect appropriate tokenizer for model"""
+        registry = TokenCounterRegistry()
+        text = "Test text"
 
-        # GPT-4o call
-        gpt_usage = UsageData(
-            provider="openai",
-            model="gpt-4o",
-            input_tokens=1_000_000,
-            output_tokens=250_000,
-            task_type="coding"
-        )
+        # Should auto-detect and work
+        result = registry.count_tokens("gpt-4o", text)
+        assert result.input_tokens > 0
 
-        # Groq call
-        groq_usage = UsageData(
-            provider="groq",
-            model="llama-70b",
-            input_tokens=1_000_000,
-            output_tokens=500_000,
-            speed_tier="standard",
-            task_type="inference"
-        )
+    def test_result_contains_all_fields(self):
+        """TokenCountResult should contain all required fields"""
+        registry = TokenCounterRegistry()
+        result = registry.count_tokens("gpt-4o", "test")
 
-        claude_cost = calc.calculate(claude_usage)
-        gpt_cost = calc.calculate(gpt_usage)
-        groq_cost = calc.calculate(groq_usage)
+        assert hasattr(result, 'input_tokens')
+        assert hasattr(result, 'source')
+        assert hasattr(result, 'latency_ms')
+        assert hasattr(result, 'cached')
 
-        # Verify costs are calculated
-        assert claude_cost > 0
-        assert gpt_cost > 0
-        assert groq_cost > 0
+    def test_source_types_valid(self):
+        """Result source should be a valid type"""
+        registry = TokenCounterRegistry()
+        text = "Sample text"
+        models = ["gpt-4o"]
 
+        for model in models:
+            result = registry.count_tokens(model, text)
+            assert result.source in ["local", "api", "formula", "cache"]
 
+        # Try llama if available
+        try:
+            result = registry.count_tokens("llama-2-7b", text)
+            assert result.source in ["local", "api", "formula", "cache"]
+        except (ValueError, RuntimeError):
+            pass  # Llama not available, that's ok
 
-class TestCostModelRegistry:
-    """Test provider model registry"""
+    def test_latency_positive(self):
+        """Latency should always be positive"""
+        registry = TokenCounterRegistry()
+        result = registry.count_tokens("gpt-4o", "test")
+        assert result.latency_ms >= 0
 
-    def test_get_provider_model(self):
-        """Get cost model for provider"""
-        registry = CostModelRegistry()
+    def test_repeated_calls_cache_optimization(self):
+        """Repeated calls should show caching optimization"""
+        registry = TokenCounterRegistry()
+        text = "This text will be used multiple times"
+        model = "gpt-4o"
 
-        claude_model = registry.get_model("anthropic")
-        assert isinstance(claude_model, ClaudeTokenModel)
+        # First call: not cached
+        r1 = registry.count_tokens(model, text)
+        # Second call: cached
+        r2 = registry.count_tokens(model, text)
+        # Third call: cached
+        r3 = registry.count_tokens(model, text)
 
-        gpt_model = registry.get_model("openai")
-        assert isinstance(gpt_model, GPT4oTokenModel)
-
-    def test_register_custom_model(self):
-        """Register custom cost model for new provider"""
-        registry = CostModelRegistry()
-
-        # Create a mock custom model
-        class CustomModel(CostModel):
-            @property
-            def provider_name(self) -> str:
-                return "custom"
-
-            def calculate(self, usage: UsageData) -> float:
-                return usage.input_tokens * 0.001 + usage.output_tokens * 0.002
-
-            def validate(self, usage: UsageData) -> bool:
-                return usage.provider == "custom"
-
-        custom = CustomModel()
-        registry.register_model("custom", custom)
-
-        retrieved = registry.get_model("custom")
-        assert isinstance(retrieved, CustomModel)
-
-    def test_list_providers(self):
-        """List all registered providers"""
-        registry = CostModelRegistry()
-        providers = registry.list_providers()
-
-        assert "anthropic" in providers
-        assert "openai" in providers
-        assert "google" in providers
-        assert "groq" in providers
-        assert "deepinfra" in providers
-        assert "together" in providers
-
-
-class TestProviderCompatibility:
-    """Test compatibility across diverse token counting methods"""
-
-    def test_same_tokens_different_costs(self):
-        """Same tokens, different prices on different providers"""
-        tokens_in = 1_000_000
-        tokens_out = 500_000
-
-        # Create usage for multiple providers
-        claude = UsageData(
-            provider="anthropic",
-            model="claude-3-5-sonnet",
-            input_tokens=tokens_in,
-            output_tokens=tokens_out
-        )
-
-        gpt = UsageData(
-            provider="openai",
-            model="gpt-4o",
-            input_tokens=tokens_in,
-            output_tokens=tokens_out
-        )
-
-        groq = UsageData(
-            provider="groq",
-            model="llama-70b",
-            input_tokens=tokens_in,
-            output_tokens=tokens_out,
-            speed_tier="standard"
-        )
-
-        registry = CostModelRegistry()
-        claude_cost = registry.calculate_cost(claude)
-        gpt_cost = registry.calculate_cost(gpt)
-        groq_cost = registry.calculate_cost(groq)
-
-        # All should be different
-        assert claude_cost != gpt_cost
-        assert gpt_cost != groq_cost
-        assert claude_cost != groq_cost
-
-        # Claude Sonnet should be most expensive for this workload
-        assert claude_cost > gpt_cost
-        assert claude_cost > groq_cost
+        # All should have same token count
+        assert r1.input_tokens == r2.input_tokens == r3.input_tokens
+        # Cached calls should be nearly instant (<1ms)
+        if r2.cached:
+            assert r2.latency_ms < 5
+        if r3.cached:
+            assert r3.latency_ms < 5

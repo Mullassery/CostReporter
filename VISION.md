@@ -60,9 +60,9 @@ PyTokenCalc solves a single, critical problem in multi-provider LLM development:
 
 ## What PyTokenCalc is NOT
 
-❌ **NOT cost calculation**: Cost calculation belongs in OpenAnchor
-❌ **NOT cost tracking**: Tracking costs over time is OpenAnchor's job
-❌ **NOT cost optimization**: Choosing cheaper models is OpenAnchor's job
+❌ **NOT cost calculation**: Cost calculation is a separate responsibility
+❌ **NOT cost tracking**: Tracking costs over time is a separate responsibility
+❌ **NOT cost optimization**: Model selection optimization is a separate responsibility
 ❌ **NOT a service**: No backend, no web API, no database server
 ❌ **NOT a dashboard/UI**: Pure Python library for programmatic access
 ❌ **NOT budget enforcement**: No alerting, no notifications, no integrations
@@ -155,13 +155,13 @@ Let users extend PyTokenCalc rather than bloating the core:
 
 These features belong in separate projects that *use* PyTokenCalc:
 
-| Feature | Project | Status |
+| Feature | Responsibility | Notes |
 |---------|---------|--------|
-| Cost optimization | [OpenAnchor](https://github.com/Mullassery/openanchor) | Active |
-| Cost calculation | OpenAnchor | Active |
-| Cost tracking | OpenAnchor | Active |
-| Dashboard/UI | Future project | Planned |
-| Forecasting ML | Future project | Planned |
+| Cost optimization | Separate project/user code | Builds on PyTokenCalc's token counting |
+| Cost calculation | Separate project/user code | Multiply tokens × prices |
+| Cost tracking | Separate project/user code | Aggregate costs over time |
+| Dashboard/UI | Separate project | Not in PyTokenCalc scope |
+| Forecasting ML | Separate project | Not in PyTokenCalc scope |
 
 ---
 

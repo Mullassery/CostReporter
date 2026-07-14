@@ -320,9 +320,11 @@ for model in ["gpt-4o", "claude-3-5-sonnet", "gemini-2-flash"]:
 
 ## What's NOT Included
 
-PyTokenCalc counts tokens. That's it. For cost optimization and tracking, use [OpenAnchor](https://github.com/Mullassery/openanchor):
-- 💰 Calculate costs based on token counts
-- 📊 Track costs over time
+PyTokenCalc counts tokens. That's it.
+
+For cost calculation and tracking, you can build on PyTokenCalc's token counting API:
+- 💰 Calculate costs from token counts + pricing data
+- 📊 Track costs over time  
 - 🎯 Optimize model selection
 - 📈 Forecast spending
 

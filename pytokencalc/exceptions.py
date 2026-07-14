@@ -6,41 +6,26 @@ class PyTokenCalcError(Exception):
     pass
 
 
-class DatabaseError(PyTokenCalcError):
-    """Database operation failed."""
-    pass
-
-
-class ConfigurationError(PyTokenCalcError):
-    """Configuration is invalid or missing."""
-    pass
-
-
 class ValidationError(PyTokenCalcError):
     """Input validation failed."""
     pass
 
 
-class AuthenticationError(PyTokenCalcError):
-    """Authentication/credentials failed."""
+class TokenCountError(PyTokenCalcError):
+    """Token counting failed."""
+    pass
+
+
+class ModelNotSupportedError(PyTokenCalcError):
+    """Model is not supported by any registered tokenizer."""
     pass
 
 
 class APIError(PyTokenCalcError):
-    """API call failed."""
+    """API call failed (for API-based tokenizers)."""
     pass
 
 
-class ProcessingError(PyTokenCalcError):
-    """Data processing error."""
-    pass
-
-
-class CalculationError(ProcessingError):
-    """Cost calculation error."""
-    pass
-
-
-class ExportError(PyTokenCalcError):
-    """Export operation failed."""
+class CacheError(PyTokenCalcError):
+    """Cache operation failed."""
     pass

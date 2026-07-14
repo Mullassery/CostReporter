@@ -357,8 +357,8 @@ All tests should pass before committing.
 
 ### What's OUT of Scope (Separate Projects)
 
-❌ Cost calculation → OpenAnchor project
-❌ Cost tracking/reporting → OpenAnchor project
+❌ Cost calculation → Separate project/user code (multiply tokens × prices)
+❌ Cost tracking/reporting → Separate project/user code (aggregate costs over time)
 ❌ Dashboards/UI → Separate visualization project
 ❌ Alerting/monitoring → User responsibility
 ❌ Forecasting/ML → Separate analytics project
@@ -371,10 +371,10 @@ Template:
 > "Out of scope for PyTokenCalc. This is a [platform/business] feature that belongs in a separate project using PyTokenCalc's token counting API."
 
 **Examples:**
-- "Add cost calculation" → No, use OpenAnchor
+- "Add cost calculation" → No, separate responsibility (user code + prices)
 - "Add a REST API" → No, it's a library
 - "Add alerting" → No, users can implement this
-- "Add forecasting" → No, separate ML project
+- "Add forecasting" → No, separate project
 - "Add database persistence" → No, caching layer only
 
 ---
