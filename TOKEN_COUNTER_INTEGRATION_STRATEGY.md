@@ -491,10 +491,33 @@ After implementation, PyTokenCalc will provide:
 
 ---
 
+## Scope Boundaries: What's NOT Included
+
+### ❌ NOT in Roadmap
+- Cost optimization recommendations (belongs in separate project)
+- Real-time dashboards (not a library feature)
+- Alert/notification system (Slack, email, SMS)
+- Machine learning forecasting
+- Anomaly detection
+- Multi-tenant support
+- Web API / REST service
+
+### ✅ What We Focus On
+- Token counting accuracy (99%+ vs official)
+- Cost calculation precision
+- Performance (<10ms local, <1ms cached)
+- Clean, extensible API
+- Easy provider integration
+
+### Why This Matters
+PyTokenCalc is a **library**, not a **platform**. Our job is to provide the core building block; users and separate projects build the platform on top.
+
+---
+
 ## Next Steps
 
-1. **Phase 1 kickoff**: Start with tiktoken + HF transformers integration
-2. **Test with real models**: Validate accuracy against official counts
-3. **Document provider list**: Which tokenizer each provider uses
-4. **Implement caching**: Design and validate cache strategy
-5. **Phase 2-4**: Roll out API, vision, system prompt support
+1. **Phase 1 kickoff**: Start with tiktoken + HF transformers integration ✅ DONE
+2. **Test with real models**: Validate accuracy against official counts ✅ DONE
+3. **Document provider list**: Which tokenizer each provider uses ✅ DONE
+4. **Implement caching**: Design and validate cache strategy ✅ DONE
+5. **Phase 2-4**: Roll out API, vision, system prompt support 🚧 NEXT

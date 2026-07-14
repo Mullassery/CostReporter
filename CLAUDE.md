@@ -1,4 +1,6 @@
-# CLAUDE.md — PyTokenCalc v0.7
+# CLAUDE.md — PyTokenCalc v0.7 Developer Guidelines
+
+**CRITICAL: Read VISION.md first. PyTokenCalc is a focused library, not a platform.**
 
 Project guidelines for Claude Code when working with this repository.
 
@@ -360,6 +362,55 @@ All tests should pass before committing.
 - `TOKEN_COUNTER_INTEGRATION_STRATEGY.md` — If advancing roadmap
 - `TOKEN_COUNTER_LIBRARIES_COMPREHENSIVE.md` — If researching new libraries
 - This file (`CLAUDE.md`) — If workflow changes
+
+---
+
+## Scope Management: Prevent Creep
+
+**BEFORE implementing ANY feature, ask:**
+
+1. **Does it count tokens or calculate costs?**
+   - YES → In scope
+   - NO → Probably out of scope
+
+2. **Does it require a service/database/external dependency?**
+   - YES → Out of scope (separate project)
+   - NO → Probably in scope
+
+3. **Can the user implement this themselves using PyTokenCalc?**
+   - YES → Out of scope (just document how)
+   - NO → Maybe in scope
+
+4. **Is this solving a library problem or a business problem?**
+   - Library (token counting, cost calculation) → In scope
+   - Business (dashboards, alerts, forecasting) → Out of scope
+
+### Historical Scope Creep Examples (DO NOT REPEAT)
+
+❌ **What we deleted:**
+- Service configuration (SMTP, Slack, Twilio, Jaeger) → Users should implement this themselves
+- Alert/anomaly detection engine → Separate project
+- Forecasting/recommendations → Separate project
+- Database schema for all these features → Pure bloat
+
+✅ **What we kept:**
+- Token counting (core)
+- Cost calculation (core)
+- Budget enforcement (supports core feature)
+- SQLite persistence (minimal, essential)
+
+### When to Say No
+
+Use this response template:
+
+> "Out of scope for PyTokenCalc. This is a [business/platform/service] feature that belongs in a separate project using PyTokenCalc's API."
+
+Examples:
+- Alerts → User code
+- Dashboards → Separate project
+- Forecasting → Separate project
+- Integrations (Slack, email) → User code
+- Multi-tenant → Separate platform
 
 ---
 
