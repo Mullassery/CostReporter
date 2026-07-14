@@ -1,5 +1,5 @@
 """
-Data persistence layer for PyCostAudit.
+Data persistence layer for PyTokenCalc.
 Stores cost calculations in SQLite for historical tracking.
 """
 
@@ -14,7 +14,7 @@ class CostDatabase:
     """SQLite database for persistent cost storage"""
 
     def __init__(self, db_path: Optional[str] = None):
-        self.db_path = Path(db_path or "~/.pycostaudit/costs.db").expanduser()
+        self.db_path = Path(db_path or "~/.pytokencalc/costs.db").expanduser()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_database()
 

@@ -13,7 +13,7 @@ class Config:
     DEBUG = os.getenv("PYCOSTAUDIT_DEBUG", "false").lower() == "true"
     
     # Database
-    DATABASE_URL = os.getenv("PYCOSTAUDIT_DATABASE_URL", "sqlite:///~/.pycostaudit/costs.db")
+    DATABASE_URL = os.getenv("PYTOKENCALC_DATABASE_URL", "sqlite:///~/.pytokencalc/costs.db")
     
     # SMTP (Email)
     SMTP_HOST = os.getenv("PYCOSTAUDIT_SMTP_HOST", "smtp.gmail.com")

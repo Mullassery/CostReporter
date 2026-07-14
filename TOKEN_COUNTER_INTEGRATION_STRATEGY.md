@@ -432,7 +432,7 @@ cost = calc.calculate_with_counting(usage)
 ## Files to Create
 
 ```
-pycostaudit/
+pytokencalc/
 ├── tokenizers/
 │   ├── __init__.py
 │   ├── base.py                    # Abstract TokenCounter

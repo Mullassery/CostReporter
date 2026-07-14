@@ -34,7 +34,7 @@ class ErrorMessage:
 # Configuration Errors
 MISSING_SMTP_CONFIG = ErrorMessage(
     title="SMTP Configuration Missing",
-    message="Email alerts are not configured. PyCostAudit cannot send email notifications.",
+    message="Email alerts are not configured. PyTokenCalc cannot send email notifications.",
     suggestions=[
         "Set PYCOSTAUDIT_SMTP_HOST environment variable (default: smtp.gmail.com)",
         "Set PYCOSTAUDIT_SMTP_USER with your email address",
@@ -44,7 +44,7 @@ MISSING_SMTP_CONFIG = ErrorMessage(
     ],
     links=[
         "Gmail setup: https://support.google.com/accounts/answer/185833",
-        "Docs: https://github.com/Mullassery/PyCostAudit#configuration",
+        "Docs: https://github.com/Mullassery/PyTokenCalc#configuration",
     ]
 )
 
@@ -52,13 +52,13 @@ MISSING_DATABASE = ErrorMessage(
     title="Database Configuration Error",
     message="Cannot initialize database. The database path is not writable.",
     suggestions=[
-        "Check that the directory ~/.pycostaudit/ exists and is writable",
+        "Check that the directory ~/.pytokencalc/ exists and is writable",
         "Ensure you have write permissions to the home directory",
-        "Try: mkdir -p ~/.pycostaudit && chmod 700 ~/.pycostaudit",
+        "Try: mkdir -p ~/.pytokencalc && chmod 700 ~/.pytokencalc",
         "Or set PYCOSTAUDIT_DATABASE_URL to a custom location",
     ],
     links=[
-        "Configuration guide: https://github.com/Mullassery/PyCostAudit#installation",
+        "Configuration guide: https://github.com/Mullassery/PyTokenCalc#installation",
     ]
 )
 
@@ -73,7 +73,7 @@ INVALID_COST_DATA = ErrorMessage(
         "Cost must be a positive number",
     ],
     links=[
-        "Data format: https://github.com/Mullassery/PyCostAudit#data-format",
+        "Data format: https://github.com/Mullassery/PyTokenCalc#data-format",
     ]
 )
 
@@ -102,7 +102,7 @@ FORECASTING_ERROR = ErrorMessage(
         "Verify there are no outliers causing statistical issues",
     ],
     links=[
-        "Forecasting guide: https://github.com/Mullassery/PyCostAudit#forecasting",
+        "Forecasting guide: https://github.com/Mullassery/PyTokenCalc#forecasting",
     ]
 )
 
@@ -117,7 +117,7 @@ DATABASE_CONNECTION_ERROR = ErrorMessage(
         "Check firewall rules if using remote database",
     ],
     links=[
-        "Database setup: https://github.com/Mullassery/PyCostAudit#database",
+        "Database setup: https://github.com/Mullassery/PyTokenCalc#database",
     ]
 )
 
@@ -131,7 +131,7 @@ EXPORT_ERROR = ErrorMessage(
         "Verify the file path doesn't contain invalid characters",
     ],
     links=[
-        "Export formats: https://github.com/Mullassery/PyCostAudit#export",
+        "Export formats: https://github.com/Mullassery/PyTokenCalc#export",
     ]
 )
 

@@ -22,7 +22,7 @@ CostModel (abstract base)
 Subclass `CostModel` with your provider's unique token counting logic:
 
 ```python
-from pycostaudit import CostModel, UsageData
+from pytokencalc import CostModel, UsageData
 
 class MyCoolProviderModel(CostModel):
     """My Cool Provider - token counting method XYZ"""
@@ -67,7 +67,7 @@ class MyCoolProviderModel(CostModel):
 ### Option A: Runtime Registration (No Code Change)
 
 ```python
-from pycostaudit import CostCalculatorV6, CostModelRegistry
+from pytokencalc import CostCalculatorV6, CostModelRegistry
 from my_module import MyCoolProviderModel
 
 # Create calculator
@@ -89,7 +89,7 @@ cost = calc.calculate(usage)
 
 ### Option B: Contribute to PyTokenCalc (Add to Core)
 
-1. Add your provider to `pycostaudit/cost_models.py`
+1. Add your provider to `pytokencalc/cost_models.py`
 2. Update `CostModelRegistry.__init__()` to include your model
 3. Update `__init__.py` to export your model class
 4. Submit PR
@@ -264,7 +264,7 @@ class DynamicPricingModel(CostModel):
 
 ```python
 import pytest
-from pycostaudit import UsageData, CostCalculatorV6
+from pytokencalc import UsageData, CostCalculatorV6
 
 def test_my_provider():
     calc = CostCalculatorV6()
@@ -321,7 +321,7 @@ PyTokenCalc v0.6 handles:
 
 ## Contributing
 
-1. **Create your provider model** in `pycostaudit/cost_models.py`
+1. **Create your provider model** in `pytokencalc/cost_models.py`
 2. **Add tests** in `tests/test_cost_models_v6.py`
 3. **Update registry** in `CostModelRegistry.__init__()`
 4. **Update exports** in `__init__.py`

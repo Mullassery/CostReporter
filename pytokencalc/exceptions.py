@@ -1,7 +1,7 @@
 """Specific exception types for better error handling."""
 
 class CostAuditError(Exception):
-    """Base exception for PyCostAudit."""
+    """Base exception for PyTokenCalc."""
     pass
 
 

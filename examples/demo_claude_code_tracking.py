@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Demo: Track Claude Code operations in real-time
-Shows how PyCostAudit tracks costs across multi-provider LLM usage.
+Shows how PyTokenCalc tracks costs across multi-provider LLM usage.
 
 This demo simulates typical Claude Code operations:
 - Model API calls (Claude, GPT-4, Bedrock)
@@ -22,7 +22,7 @@ def simulate_claude_code_operations():
     """Simulate real Claude Code operations and track costs"""
 
     print("=" * 80)
-    print("PyCostAudit: Claude Code Session Cost Tracking Demo")
+    print("PyTokenCalc: Claude Code Session Cost Tracking Demo")
     print("=" * 80)
     print()
 

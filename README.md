@@ -317,7 +317,7 @@ except BudgetExceededError as e:
 - CostModelRegistry (extensible)
 
 ### v0.5.0 (July 2026) - Multi-Provider Launch
-**Renamed from PyCostAudit → PyTokenCalc**
+
 - 20+ cloud providers + 10+ open-source APIs
 - Laser-focused scope (cost calculation only)
 - 87% code reduction from v0.4

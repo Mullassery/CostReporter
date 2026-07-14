@@ -1,6 +1,6 @@
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
-build-backend = "maturin.build"
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytokencalc"
@@ -93,11 +93,6 @@ Documentation = "https://github.com/Mullassery/PyTokenCalc#readme"
 Changelog = "https://github.com/Mullassery/PyTokenCalc/releases"
 "Source Code" = "https://github.com/Mullassery/PyTokenCalc/tree/main"
 Discussions = "https://github.com/Mullassery/PyTokenCalc/discussions"
-
-[tool.maturin]
-module-name = "pytokencalc._core"
-manifest-path = "Cargo.toml"
-python-source = "."
 
 [tool.black]
 line-length = 100

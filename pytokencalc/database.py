@@ -1,5 +1,5 @@
 """
-Database schema and ORM models for PyCostAudit v0.6+
+Database schema and ORM models for PyTokenCalc v0.6+
 Extends Phase 3 to support alerts, forecasting, anomaly detection, and auditing.
 """
 
@@ -248,7 +248,7 @@ class AuditLog:
 class DatabaseManager:
     """Manages SQLite database connections and schema"""
 
-    def __init__(self, db_path: str = "~/.pycostaudit/pycostaudit.db"):
+    def __init__(self, db_path: str = "~/.pytokencalc/pytokencalc.db"):
         self.db_path = db_path.replace("~", os.path.expanduser("~"))
         self.conn = None
         self.cursor = None
