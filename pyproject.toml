@@ -58,6 +58,20 @@ dependencies = [
     "uvicorn==0.24.0",
 ]
 
+# Optional tokenizer support (installed separately for smaller footprint)
+# Phase 1: Local tokenizers
+optional-tokenizers = [
+    "tiktoken>=0.5.0",  # OpenAI GPT token counting
+    "transformers>=4.30.0",  # Llama, Mistral, 1000+ models
+    "sentencepiece>=0.1.99",  # SentencePiece dependency for HF models
+]
+
+# Phase 2+: API-based tokenizers (not yet implemented)
+# optional-api-tokenizers = [
+#     "anthropic>=0.20.0",  # Anthropic Claude API
+#     "google-generativeai>=0.3.0",  # Google Gemini API
+# ]
+
 [project.optional-dependencies]
 dev = [
     "pytest==7.4.3",
