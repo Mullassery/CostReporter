@@ -19,11 +19,11 @@ Project guidelines for Claude Code when working with this repository.
 **Solution:** PyTokenCalc provides a single unified API:
 - Auto-detect correct tokenizer per model
 - Intelligent routing (local fast vs cached API accurate)
-- 70-80% API cost reduction via caching
+- 70-80% fewer API calls via aggressive caching
 - 99%+ accuracy (99.9% local, 99.5% API cached)
 - Zero configuration needed
 
-**Target:** AI engineers, startups, enterprises calculating accurate costs across multiple LLM providers.
+**Target:** AI engineers, startups, enterprises that count tokens across multiple LLM providers.
 
 ---
 
@@ -33,7 +33,7 @@ Project guidelines for Claude Code when working with this repository.
 - ✅ **Local Tokenizers:** tiktoken (OpenAI), HF transformers (Llama/Mistral)
 - ✅ **Intelligent Routing:** Auto-detect model → correct tokenizer
 - ✅ **Caching:** In-memory LRU + optional persistence
-- ✅ **Smart Caching:** 70-80% API call reduction
+- ✅ **Smart Caching:** 70-80% fewer API calls via intelligent caching
 - ✅ **Testing:** 17 token counter tests, all passing
 - 🚧 **Phase 2:** Cloud API tokenizers (Anthropic, Google, etc.)
 
@@ -53,7 +53,7 @@ pytokencalc/
     └── cache.py               # LRU cache + persistence
 
 tests/
-└── test_cost_models_v6.py     # Token counter integration tests (17 tests)
+└── test_token_counter.py     # Token counter integration tests
 
 docs/
 ├── README.md                  # Quick start + API reference
@@ -148,7 +148,7 @@ self.counters.append(MyServiceTokenCounter())
 **Step 3: Add Tests**
 
 ```python
-# In tests/test_cost_models_v6.py (or new test file)
+# In tests/test_tokenizers.py (or new test file)
 def test_myservice_token_count():
     counter = MyServiceTokenCounter()
     text = "Hello world from MyService"
@@ -206,12 +206,12 @@ if "newservice" in model_lower:
 ### Unit Tests (Fast, Isolated)
 ```bash
 pytest tests/ -v                    # All tests
-pytest tests/test_cost_models_v6.py # Cost model tests only
+pytest tests/test_token_counter.py # Token counter tests
 pytest tests/test_integration.py    # Integration tests
 ```
 
 ### Test Coverage
-- ✅ Each cost model (Claude, GPT-4o, Gemini, Groq, DeepInfra, Together)
+- ✅ Each tokenizer counter (OpenAI, HuggingFace, Claude, Gemini, Groq, DeepInfra)
 - ✅ Token counting (tiktoken, HF transformers)
 - ✅ Routing (auto-detect per model)
 - ✅ Caching (hit/miss, expiration)
@@ -219,7 +219,7 @@ pytest tests/test_integration.py    # Integration tests
 
 ### Performance Targets
 - Token counting: <10ms (local), <1ms (cached)
-- Cost calculation: <1ms
+- Token counting: <10ms for local, <1ms for cached
 - Cache operations: <1ms
 - API calls: 200-300ms (but 70-80% avoided via caching)
 
@@ -289,7 +289,7 @@ print(f"Cached entries: {stats.size}")
 
 1. **One API for all providers** — No provider-specific code paths
 2. **Smart routing** — Local fast when possible, API accurate when needed
-3. **Aggressive caching** — 70-80% API cost reduction target
+3. **Aggressive caching** — 70-80% API call reduction target
 4. **Extensibility** — Easy to add new providers without core changes
 5. **Accuracy first** — 99%+ match vs official counts, always
 6. **Performance** — <10ms local, <1ms cached, <300ms API
@@ -303,14 +303,11 @@ print(f"Cached entries: {stats.size}")
 # Full test suite
 pytest tests/ -v --cov=pytokencalc
 
-# Specific provider tests
-pytest tests/test_cost_models_v6.py::TestClaudeTokenModel -v
-
 # Token counter tests
-pytest tests/ -k "token" -v
+pytest tests/test_token_counter.py -v
 
-# Integration tests
-pytest tests/test_integration.py -v
+# Test caching behavior
+pytest tests/ -k "caching" -v
 ```
 
 All tests should pass before committing.
@@ -357,8 +354,8 @@ All tests should pass before committing.
 
 ### What's OUT of Scope (Separate Projects)
 
-❌ Cost calculation → Separate project/user code (multiply tokens × prices)
-❌ Cost tracking/reporting → Separate project/user code (aggregate costs over time)
+❌ Financial calculation → Separate project/user code (use token counts with your data)
+❌ Usage tracking/reporting → Separate project/user code (aggregate usage over time)
 ❌ Dashboards/UI → Separate visualization project
 ❌ Alerting/monitoring → User responsibility
 ❌ Forecasting/ML → Separate analytics project
@@ -371,7 +368,7 @@ Template:
 > "Out of scope for PyTokenCalc. This is a [platform/business] feature that belongs in a separate project using PyTokenCalc's token counting API."
 
 **Examples:**
-- "Add cost calculation" → No, separate responsibility (user code + prices)
+- "Add financial calculation" → No, separate responsibility (user code + own data)
 - "Add a REST API" → No, it's a library
 - "Add alerting" → No, users can implement this
 - "Add forecasting" → No, separate project
@@ -385,8 +382,8 @@ Template:
 - [ADDING_PROVIDERS.md](ADDING_PROVIDERS.md) — Provider integration guide
 - [TOKEN_COUNTER_INTEGRATION_STRATEGY.md](TOKEN_COUNTER_INTEGRATION_STRATEGY.md) — 4-phase roadmap
 - [TOKEN_COUNTER_LIBRARIES_COMPREHENSIVE.md](TOKEN_COUNTER_LIBRARIES_COMPREHENSIVE.md) — All 20+ libraries
-- [Anthropic Docs](https://docs.anthropic.com) — Claude pricing & token counting
-- [OpenAI Docs](https://platform.openai.com/docs) — GPT pricing & tiktoken
+- [Anthropic Docs](https://docs.anthropic.com) — Claude API & token counting
+- [OpenAI Docs](https://platform.openai.com/docs) — GPT API & tiktoken
 - [HuggingFace Docs](https://huggingface.co/docs) — Transformer models & tokenizers
 
 ---

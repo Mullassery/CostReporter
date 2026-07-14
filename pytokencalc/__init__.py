@@ -15,13 +15,9 @@ Supported Providers:
 
 Token Counting Only - Pure Library:
 - Count tokens for any LLM provider
-- Cache results to reduce API calls
-- No cost calculation (see OpenAnchor for that)
-- No persistence or database
-- No state management
-
-For cost optimization and tracking, see:
-- OpenAnchor: https://github.com/Mullassery/openanchor
+- Cache results to reduce API calls (70-80% fewer API calls)
+- No external services or persistence
+- No configuration needed
 
 Repository: https://github.com/Mullassery/PyTokenCalc
 """

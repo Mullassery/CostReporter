@@ -210,4 +210,4 @@ if __name__ == "__main__":
     print("\n📚 Next steps:")
     print("  • Read README.md for API reference")
     print("  • Check ADDING_PROVIDERS.md to add new tokenizers")
-    print("  • For cost tracking, see: https://github.com/Mullassery/openanchor")
+    print("  • Build custom analytics on top of PyTokenCalc's token data")

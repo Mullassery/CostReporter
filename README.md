@@ -8,7 +8,7 @@
 
 ## The Problem
 
-You're building an LLM application that uses multiple providers. You need to count tokens to understand costs and manage rate limits. But here's the nightmare:
+You're building an LLM application that uses multiple providers. You need to count tokens accurately and manage rate limits. But here's the nightmare:
 
 **OpenAI has `tiktoken`.** Different API, different methods.
 **Meta's Llama has HuggingFace tokenizers.** Another integration.
@@ -322,11 +322,11 @@ for model in ["gpt-4o", "claude-3-5-sonnet", "gemini-2-flash"]:
 
 PyTokenCalc counts tokens. That's it.
 
-For cost calculation and tracking, you can build on PyTokenCalc's token counting API:
-- 💰 Calculate costs from token counts + pricing data
-- 📊 Track costs over time  
-- 🎯 Optimize model selection
-- 📈 Forecast spending
+For advanced use cases like model optimization or analytics, you can build on PyTokenCalc's token counting API:
+- 🔍 Analyze token usage patterns
+- 📊 Track API usage over time  
+- 🎯 Compare model efficiency
+- 📈 Plan capacity and resources
 
 ---
 

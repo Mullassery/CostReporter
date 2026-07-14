@@ -409,7 +409,7 @@ pytest tests/ -k "cache" -v
 2. **Implement** `TokenCounter` subclass
 3. **Register** in `pytokencalc/tokenizers/registry.py`
 4. **Export** in `pytokencalc/tokenizers/__init__.py`
-5. **Test** in `tests/test_myprovider_counter.py` or `tests/test_cost_models_v6.py`
+5. **Test** in `tests/test_myprovider_counter.py` or existing test file
 6. **Submit PR** with:
    - Working example
    - Test coverage
@@ -420,8 +420,8 @@ pytest tests/ -k "cache" -v
 
 ## FAQ
 
-**Q: What's the difference between token counting and cost calculation?**
-A: Token counting is determining how many tokens are in text. Cost calculation is converting tokens to dollars. PyTokenCalc only does token counting. You can build cost calculation on top using PyTokenCalc's token counts + pricing data.
+**Q: What's the difference between token counting and financial analysis?**
+A: Token counting determines how many tokens are in text. Financial analysis converts tokens to monetary value. PyTokenCalc only does token counting. You can build financial analysis on top using PyTokenCalc's token counts + your own data.
 
 **Q: Can I use an API-based tokenizer?**
 A: Yes! The registry automatically caches API results, achieving 70-80% API call reduction.
@@ -446,4 +446,4 @@ A: Yes, but set `source="formula"` to indicate it's an estimate, not exact.
 
 **PyTokenCalc is built for flexibility.** It handles 20+ current providers and is ready for 100+ future ones. Any token counting method. Any provider. Fully pluggable.
 
-For cost tracking and optimization, build on top of PyTokenCalc's token counting API using pricing data from your providers.
+For advanced analytics and optimization, build on top of PyTokenCalc's token counting API using your own business logic and provider data.

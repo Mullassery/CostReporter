@@ -60,12 +60,12 @@ PyTokenCalc solves a single, critical problem in multi-provider LLM development:
 
 ## What PyTokenCalc is NOT
 
-❌ **NOT cost calculation**: Cost calculation is a separate responsibility
-❌ **NOT cost tracking**: Tracking costs over time is a separate responsibility
-❌ **NOT cost optimization**: Model selection optimization is a separate responsibility
+❌ **NOT financial calculation**: Financial analysis is a separate responsibility
+❌ **NOT usage tracking**: Tracking usage over time is a separate responsibility
+❌ **NOT optimization**: Model selection optimization is a separate responsibility
 ❌ **NOT a service**: No backend, no web API, no database server
 ❌ **NOT a dashboard/UI**: Pure Python library for programmatic access
-❌ **NOT budget enforcement**: No alerting, no notifications, no integrations
+❌ **NOT alerting**: No notifications, no integrations
 ❌ **NOT forecasting**: No ML predictions, no anomaly detection
 
 ---
@@ -92,12 +92,12 @@ PyTokenCalc solves a single, critical problem in multi-provider LLM development:
 
 ### ⛔ STRICTLY OUT-OF-SCOPE (Will Not Implement)
 
-❌ **Cost-related features** (all belong in OpenAnchor or user code)
-- Cost calculation/pricing
-- Provider pricing management
-- Cost tracking or aggregation
+❌ **Financial/analytics features** (belong in separate projects)
+- Financial calculations
+- Provider rate management
+- Usage aggregation
 - Budget enforcement
-- Cost reports/exports
+- Reports/exports
 
 ❌ **Services & Backends**
 - REST API server
@@ -108,15 +108,15 @@ PyTokenCalc solves a single, critical problem in multi-provider LLM development:
 
 ❌ **Monitoring & Alerting**
 - Real-time dashboards
-- Cost alerts
-- Notification integrations (Slack, email, SMS)
+- Notifications
+- Integrations (Slack, email, SMS)
 - Metrics collection
 - Distributed tracing
 
 ❌ **Advanced Features**
 - ML-based token prediction
 - Anomaly detection
-- Cost optimization recommendations
+- Optimization recommendations
 - Model selection algorithms
 
 ---
@@ -146,7 +146,7 @@ Let users extend PyTokenCalc rather than bloating the core:
 ### 5. Name-Based Scope
 - **Name**: PyTokenCalc ("Python Token Calculator")
 - **Scope**: Count tokens. That's it.
-- **No cost calculation, no cost tracking, no cost optimization**
+- No financial calculation, no analytics, no optimization
 - If the feature doesn't align with the name, it doesn't belong
 
 ---
@@ -157,9 +157,9 @@ These features belong in separate projects that *use* PyTokenCalc:
 
 | Feature | Responsibility | Notes |
 |---------|---------|--------|
-| Cost optimization | Separate project/user code | Builds on PyTokenCalc's token counting |
-| Cost calculation | Separate project/user code | Multiply tokens × prices |
-| Cost tracking | Separate project/user code | Aggregate costs over time |
+| Model optimization | Separate project/user code | Builds on PyTokenCalc's token counting |
+| Financial analysis | Separate project/user code | Use token counts with your own data |
+| Usage tracking | Separate project/user code | Aggregate usage over time |
 | Dashboard/UI | Separate project | Not in PyTokenCalc scope |
 | Forecasting ML | Separate project | Not in PyTokenCalc scope |
 
@@ -170,7 +170,7 @@ These features belong in separate projects that *use* PyTokenCalc:
 ### v0.8: Cloud API Integration
 - Anthropic: `messages.count_tokens()` API
 - Google: Gemini token counting API
-- Aggressive caching: 70-80% API call reduction
+- Aggressive caching: 70-80% fewer API calls
 
 ### v0.9: Vision/Multimodal
 - Image token counting for Claude, GPT-4V, Gemini
@@ -194,7 +194,7 @@ These features belong in separate projects that *use* PyTokenCalc:
 
 **PyTokenCalc is a focused, stable, production-grade token counting library for multi-provider LLM development.**
 
-Everything else (cost calculation, optimization, tracking) is someone else's responsibility.
+Everything else (financial analysis, optimization, tracking) is someone else's responsibility.
 
 This keeps us sharp, reliable, and valuable.
 
