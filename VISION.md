@@ -70,7 +70,7 @@ PyTokenCalc solves a single, critical problem in multi-provider LLM development:
 ## What PyTokenCalc is NOT
 
 ❌ **NOT a service**: No backend, no web API, no database server
-❌ **NOT a cost optimization platform**: We track costs, we don't optimize them
+❌ **NOT a cost optimization platform**: We calculate costs per-request, we don't optimize or track them over time (that's OpenAnchor's job)
 ❌ **NOT an agent framework**: No LangChain, no automation, no orchestration
 ❌ **NOT a dashboard/UI**: Pure Python library for programmatic access
 ❌ **NOT a budget enforcement service**: No notifications, no alerts, no integrations (Slack, email, SMS)

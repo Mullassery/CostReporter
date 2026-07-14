@@ -23,7 +23,7 @@ Project guidelines for Claude Code when working with this repository.
 - 99%+ accuracy (99.9% local, 99.5% API cached)
 - Zero configuration needed
 
-**Target:** AI engineers, startups, enterprises tracking LLM costs across multiple providers.
+**Target:** AI engineers, startups, enterprises calculating accurate costs across multiple LLM providers.
 
 ---
 

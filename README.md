@@ -17,7 +17,7 @@ PyTokenCalc provides:
 1. **Unified interface** — single API for 20+ providers
 2. **Smart routing** — local tokenizers where available (tiktoken, HF), cached API calls for proprietary ones
 3. **Token accuracy** — 99%+ match vs official provider counts
-4. **Cost tracking** — automatic cost calculation with provider-specific models
+4. **Cost calculation** — accurate per-request cost calculation with provider-specific models
 
 ---
 
@@ -121,7 +121,7 @@ print(breakdown)  # {"anthropic": 10.50, "openai": 5.56, "google": 1.125}
 - Multi-provider cost calculation (20+ cloud, 10+ open-source)
 - Real-time pricing updates
 - Budget enforcement (hard limits)
-- Cost tracking & aggregation
+- Per-request cost precision (use OpenAnchor for tracking & optimization)
 
 ### ✅ Token Counting Performance
 | Tokenizer | Provider | Speed | Accuracy | Cost |
@@ -335,27 +335,28 @@ tokens = count_tokens("gpt-4o", "Your prompt")
 print(f"Tokens: {tokens.input_tokens}")
 ```
 
-### Use Case 2: Cost Tracking
+### Use Case 2: Cost Calculation (Single Request)
 ```python
 from pytokencalc import CostCalculatorV6, UsageData
 
 calc = CostCalculatorV6()
 for operation in operations:
-    calc.calculate(UsageData(...))
+    cost = calc.calculate(UsageData(...))
+    print(f"This request cost: ${cost:.4f}")
 
-print(calc.cost_by_provider())  # Cost breakdown
+# For aggregation across many requests → use OpenAnchor
 ```
 
-### Use Case 3: OpenAnchor Integration
+### Use Case 3: OpenAnchor Integration (Cost Tracking & Optimization)
 ```python
-from pytokencalc import CostCalculatorV6
 from openanchor import CostOptimizer
 
-# OpenAnchor uses PyTokenCalc for cost tracking
+# OpenAnchor uses PyTokenCalc for cost CALCULATION
+# OpenAnchor adds cost TRACKING, optimization, and provider selection
 optimizer = CostOptimizer()
 llm = optimizer.wrap(your_llm)
 response = llm.invoke("Analyze this...")
-# Automatic cost tracking + optimization
+# Automatic cost calculation + tracking + optimization
 ```
 
 ### Use Case 4: Custom Provider
