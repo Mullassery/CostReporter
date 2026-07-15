@@ -332,8 +332,6 @@ PyTokenCalc maintains a database to store token counts and enable reconciliation
 
 **Important:** OpenAnchor requires PyTokenCalc to be installed. You cannot use OpenAnchor without PyTokenCalc. However, you can use PyTokenCalc alone without OpenAnchor.
 
-See [ARCHITECTURE_BOUNDARIES.md](../openanchor/ARCHITECTURE_BOUNDARIES.md) in the OpenAnchor repo for full database architecture details.
-
 ---
 
 ## What's NOT Included
