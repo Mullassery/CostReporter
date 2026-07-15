@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytokencalc"
-version = "0.7.0"
-description = "Unified token counting across 20+ cloud providers and 10+ open-source APIs. Local tokenizers for OpenAI/Llama, intelligent caching, 99%+ accuracy."
+version = "0.8.0"
+description = "Unified token counting across 20+ cloud providers and 10+ open-source APIs. Local tokenizers for OpenAI/Llama, intelligent caching, 99%+ accuracy. CLI + REST API for workflow automation."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { file = "LICENSE" }
