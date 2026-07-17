@@ -156,6 +156,123 @@ hf_inference.register_models([
 register_custom_provider(hf_inference)
 ```
 
+### Docker Container Deployment
+
+```bash
+# Run LLM in Docker
+docker run -p 8000:8000 \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  vllm/vllm:latest \
+  --model meta-llama/Llama-2-7b-hf
+```
+
+```python
+# Register Docker-based LLM with PyTokenCalc
+docker_llm = CustomProviderCounter(
+    provider_name="docker-llama",
+    base_url="http://localhost:8000",
+    api_key=None
+)
+
+docker_llm.register_models(["meta-llama/Llama-2-7b-hf"])
+register_custom_provider(docker_llm)
+
+# Use it
+registry.count_tokens("meta-llama/Llama-2-7b-hf", text, provider="docker-llama")
+```
+
+### Kubernetes Deployment
+
+```yaml
+# kubernetes-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-inference
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: llm
+  template:
+    metadata:
+      labels:
+        app: llm
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MODEL_NAME
+          value: "meta-llama/Llama-2-7b-hf"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+spec:
+  selector:
+    app: llm
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP
+```
+
+```python
+# Register Kubernetes-based LLM
+k8s_llm = CustomProviderCounter(
+    provider_name="k8s-llama",
+    base_url="http://llm-service.default:8000",  # K8s service DNS
+    api_key=None
+)
+
+k8s_llm.register_models(["meta-llama/Llama-2-7b-hf"])
+register_custom_provider(k8s_llm)
+
+# Use it (now using Kubernetes pod)
+registry.count_tokens("meta-llama/Llama-2-7b-hf", text, provider="k8s-llama")
+```
+
+### Docker Compose Multi-Container
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  llm-inference:
+    image: vllm/vllm:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=meta-llama/Llama-2-7b-hf
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    
+  app:
+    image: my-app:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - llm-inference
+    environment:
+      - LLM_URL=http://llm-inference:8000
+```
+
+```python
+# Register Docker Compose LLM
+compose_llm = CustomProviderCounter(
+    provider_name="compose-llama",
+    base_url="http://llm-inference:8000",  # Service name from Docker Compose
+    api_key=None
+)
+
+compose_llm.register_models(["meta-llama/Llama-2-7b-hf"])
+register_custom_provider(compose_llm)
+```
+
 ### Custom Self-Hosted Solution
 
 ```python
@@ -224,6 +341,12 @@ result = registry.count_tokens("meta-llama/Llama-2-7b-hf", text, provider="my-lo
 - **SpeakLeash**: Local LLM control panel
 - **Ray Serve**: Scalable model serving
 - **FastAPI + Transformers**: Custom wrapper around HF models
+
+**Deployment Options:**
+- **Docker Container**: Run LLM in isolated Docker container
+- **Kubernetes Pod**: Run LLM in Kubernetes cluster
+- **Docker Compose**: Multi-container orchestration
+- **Local GPU/CPU**: Direct inference on user's machine
 
 **Example: User runs fine-tuned model**
 ```python
