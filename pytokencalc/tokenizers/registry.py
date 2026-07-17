@@ -14,6 +14,7 @@ from .google_counter import GoogleTokenCounter
 from .cohere_counter import CohereTokenCounter
 from .azure_openai_counter import AzureOpenAITokenCounter
 from .opensource_counter import OpenSourceTokenCounter
+from .ollama_counter import OllamaTokenCounter
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,12 @@ class TokenCounterRegistry:
         except ImportError as e:
             logger.warning(f"Open-source counter unavailable: {e}")
 
+        try:
+            self.register("ollama", OllamaTokenCounter())
+            logger.info("Registered Ollama token counter")
+        except (ImportError, RuntimeError) as e:
+            logger.warning(f"Ollama counter unavailable: {e}")
+
     def register(self, provider: str, counter: TokenCounter):
         """Register a new token counter"""
         self.counters[provider.lower()] = counter
@@ -105,6 +112,13 @@ class TokenCounterRegistry:
         # Azure OpenAI models
         if "gpt-35" in model_lower or ("gpt-4" in model_lower and "azure" in model_lower):
             return self.get_counter("azure")
+
+        # Ollama models (local inference)
+        if "ollama" in model_lower or any(x in model_lower for x in
+                                          ["llama2", "neural-chat", "dolphin", "openchat", "openhermes", "wizardlm"]):
+            ollama_counter = self.get_counter("ollama")
+            if ollama_counter:
+                return ollama_counter
 
         # Open-source models: DeepSeek, Falcon, PALM, Llama, Mistral, etc.
         if any(x in model_lower for x in ["deepseek", "falcon", "text-bison", "code-bison",

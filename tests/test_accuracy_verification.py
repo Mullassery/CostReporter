@@ -19,6 +19,9 @@ import pytest
 from pytokencalc.tokenizers import TokenCounterRegistry
 from typing import List, Dict, Any
 
+# Note: Ollama requires local instance running (ollama serve)
+# Tests gracefully skip if Ollama not available
+
 # Test data: Various text types and sizes
 TEST_SAMPLES = {
     "english_short": {
@@ -345,6 +348,83 @@ class TestCohereAccuracy:
         assert counter.validate_model("command-light"), "Should validate command-light"
         assert counter.validate_model("command-future"), "Should accept future Command models"
         assert not counter.validate_model("claude-3-opus"), "Should reject non-Cohere models"
+
+
+class TestOllamaAccuracy:
+    """Verify Ollama token counts (local LLM inference engine)"""
+
+    @pytest.mark.skipif(
+        pytest.mark.skipif,
+        reason="Requires Ollama running locally (ollama serve)"
+    )
+    @pytest.mark.parametrize("sample_key", ["english_medium", "code_python"])
+    def test_ollama_token_counting(self, sample_key):
+        """Verify Ollama can count tokens for available models"""
+        try:
+            from pytokencalc.tokenizers.ollama_counter import OllamaTokenCounter
+        except ImportError:
+            pytest.skip("ollama_counter not available")
+
+        sample = TEST_SAMPLES[sample_key]
+        text = sample["text"]
+
+        try:
+            counter = OllamaTokenCounter()
+            result = counter.count(text, "llama2")
+
+            # Verify result is reasonable
+            assert result.input_tokens > 0, "Token count should be positive"
+            assert result.source == "api", "Ollama should use API source"
+            assert result.provider == "ollama", "Provider should be ollama"
+
+        except RuntimeError as e:
+            if "Ollama not accessible" in str(e):
+                pytest.skip("Ollama not running locally")
+            raise
+
+    def test_ollama_dynamic_model_discovery(self):
+        """Verify Ollama supports dynamic model discovery"""
+        try:
+            from pytokencalc.tokenizers.ollama_counter import OllamaTokenCounter
+        except ImportError:
+            pytest.skip("ollama_counter not available")
+
+        try:
+            counter = OllamaTokenCounter()
+
+            # Should accept any model name pattern
+            assert counter.validate_model("llama2"), "Should validate llama2"
+            assert counter.validate_model("mistral"), "Should validate mistral"
+            assert counter.validate_model("neural-chat"), "Should validate neural-chat"
+            assert counter.validate_model("custom-model-2024"), "Should accept new Ollama models"
+
+            # Should reject invalid patterns
+            assert not counter.validate_model(""), "Should reject empty model"
+            assert not counter.validate_model(None), "Should reject None"
+
+        except RuntimeError as e:
+            if "Ollama not accessible" in str(e):
+                pytest.skip("Ollama not running locally")
+            raise
+
+    def test_ollama_registry_detection(self):
+        """Verify registry auto-detects Ollama models"""
+        registry = TokenCounterRegistry()
+        text = TEST_SAMPLES["english_medium"]["text"]
+
+        # Check if Ollama is registered
+        ollama_counter = registry.get_counter("ollama")
+        if ollama_counter is None:
+            pytest.skip("Ollama not available (not running locally)")
+
+        # Registry should auto-detect Ollama models
+        try:
+            result = registry.count_tokens("llama2", text, provider="ollama")
+            assert result.provider == "ollama", "Should route to Ollama provider"
+        except RuntimeError as e:
+            if "Ollama not accessible" in str(e):
+                pytest.skip("Ollama not running locally")
+            raise
 
 
 class TestOpenSourceAccuracy:
