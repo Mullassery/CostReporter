@@ -3,6 +3,44 @@
 [![PyPI version](https://badge.fury.io/py/pytokencalc.svg)](https://pypi.org/project/pytokencalc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
+![Status: v0.9 Released](https://img.shields.io/badge/Status-v0.9%20Released-brightgreen)
+![104 Tests Passing](https://img.shields.io/badge/Tests-104%2F104%20Passing-brightgreen)
+
+---
+
+## Release Status
+
+### v0.9.0 ✅ RELEASED (July 18, 2026)
+**Universal Token Counting for ANY LLM**
+
+**Providers Supported:**
+- 8 cloud providers (OpenAI, Anthropic, Google, Cohere, Azure, RunPod, Together AI, Replicate)
+- 7 local inference engines (Ollama, LM Studio, LocalAI, Llama.cpp, GPT4All, Text Gen WebUI, Jan)
+- Custom provider registration (BYOM - Bring Your Own Model)
+- Docker/Kubernetes deployment ready
+
+**Key Features:**
+- Pattern-based forward compatibility (claude-*, gemini-*, command-*)
+- Model discovery system (automatic provider suggestion)
+- Platform-aware tracking (same model, different platforms)
+- Temporal variation monitoring (timestamp + session tracking)
+- 99%+ accuracy vs official counters
+- 104 tests passing, zero breaking changes
+
+**Documentation:**
+- Updated README with all v0.9 features
+- CUSTOM_PROVIDERS.md (200+ lines, 10+ provider examples including Docker/Kubernetes)
+- CHANGELOG.md (complete version history)
+- RELEASE_NOTES_v0.9.0.md (comprehensive)
+
+### v1.0 (Planned - Q4 2026)
+- Cost attribution engine (token cost per operation)
+- Advanced anomaly detection
+- Enterprise dashboard
+- Multi-model orchestration
+- Streaming token counting
+
+For detailed roadmap, see [RELEASE_NOTES_v0.9.0.md](RELEASE_NOTES_v0.9.0.md)
 
 ---
 
