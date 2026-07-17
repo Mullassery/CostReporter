@@ -16,14 +16,20 @@ except ImportError:
 
 
 class CohereTokenCounter(TokenCounter):
-    """Cohere token counter using official API"""
+    """Cohere token counter using official API
 
-    SUPPORTED_MODELS = {
+    Supports all Cohere models via pattern matching (command-*).
+    New models released by Cohere are automatically supported.
+    Validation happens server-side via Cohere API.
+    """
+
+    KNOWN_MODELS = {
         "command",
         "command-light",
         "command-nightly",
         "command-r",
         "command-r-plus",
+        "command-r-08-2024",  # Support new models without code changes
     }
 
     def __init__(self):
@@ -40,12 +46,20 @@ class CohereTokenCounter(TokenCounter):
 
     @property
     def supported_models(self) -> List[str]:
-        return list(self.SUPPORTED_MODELS)
+        return list(self.KNOWN_MODELS)
 
     def count(self, text: str, model: str) -> TokenCountResult:
-        """Count tokens using Cohere's tokenize API"""
+        """Count tokens using Cohere's tokenize API
+
+        Pattern-based validation: accepts any command-* model.
+        Cohere API validates actual model existence server-side.
+        This allows forward compatibility with new Cohere models.
+        """
         if not self.validate_model(model):
-            raise ValueError(f"Unknown Cohere model: {model}")
+            raise ValueError(
+                f"Model '{model}' does not match command* pattern. "
+                f"Cohere models must start with 'command'"
+            )
 
         start_time = time.time()
 
@@ -67,8 +81,14 @@ class CohereTokenCounter(TokenCounter):
         )
 
     def validate_model(self, model: str) -> bool:
-        """Check if model is supported"""
-        return model.lower() in self.SUPPORTED_MODELS
+        """Validate model pattern (not specific model list)
+
+        Uses pattern matching instead of hardcoded list.
+        Allows forward compatibility with new Cohere models.
+        Server-side validation via Cohere API for actual existence.
+        """
+        model_lower = model.lower()
+        return model_lower.startswith("command")
 
     def get_tokenizer_info(self) -> Dict[str, Any]:
         """Return tokenizer info"""

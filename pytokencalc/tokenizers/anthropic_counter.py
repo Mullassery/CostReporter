@@ -16,13 +16,20 @@ except ImportError:
 
 
 class AnthropicTokenCounter(TokenCounter):
-    """Anthropic Claude token counter using official API"""
+    """Anthropic Claude token counter using official API
 
-    SUPPORTED_MODELS = {
+    Supports all Claude models via pattern matching (claude-*).
+    New models released by Anthropic are automatically supported.
+    Validation happens server-side via Anthropic API.
+    """
+
+    # Known models as of 2026-07-17 (for documentation)
+    KNOWN_MODELS = {
         "claude-3-opus",
         "claude-3-sonnet",
         "claude-3-haiku",
         "claude-3.5-sonnet",
+        "claude-4-fable",  # Support new models without code changes
     }
 
     def __init__(self):
@@ -39,12 +46,22 @@ class AnthropicTokenCounter(TokenCounter):
 
     @property
     def supported_models(self) -> List[str]:
-        return list(self.SUPPORTED_MODELS)
+        # Return known models, but pattern matching allows any claude-*
+        return list(self.KNOWN_MODELS)
 
     def count(self, text: str, model: str) -> TokenCountResult:
-        """Count tokens using Anthropic's token counting API"""
+        """Count tokens using Anthropic's token counting API
+
+        Pattern-based validation: accepts any claude-* model.
+        Anthropic API validates actual model existence server-side.
+        This allows forward compatibility with new Claude models
+        without requiring code updates.
+        """
         if not self.validate_model(model):
-            raise ValueError(f"Unknown Claude model: {model}")
+            raise ValueError(
+                f"Model '{model}' does not match claude-* pattern. "
+                f"Anthropic models must start with 'claude-'"
+            )
 
         start_time = time.time()
 
@@ -69,8 +86,16 @@ class AnthropicTokenCounter(TokenCounter):
         )
 
     def validate_model(self, model: str) -> bool:
-        """Check if model is supported"""
-        return model.lower() in self.SUPPORTED_MODELS
+        """Validate model pattern (not specific model list)
+
+        Uses pattern matching instead of hardcoded list.
+        Allows forward compatibility with new Claude models.
+        Server-side validation via Anthropic API for actual existence.
+        """
+        model_lower = model.lower()
+        # Pattern: any claude-* model is accepted
+        # Anthropic API will reject if model doesn't actually exist
+        return model_lower.startswith("claude-")
 
     def get_tokenizer_info(self) -> Dict[str, Any]:
         """Return tokenizer info"""

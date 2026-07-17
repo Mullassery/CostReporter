@@ -16,15 +16,21 @@ except ImportError:
 
 
 class GoogleTokenCounter(TokenCounter):
-    """Google Gemini token counter using official API"""
+    """Google Gemini token counter using official API
 
-    SUPPORTED_MODELS = {
+    Supports all Gemini models via pattern matching (gemini-*).
+    New models released by Google are automatically supported.
+    Validation happens server-side via Google API.
+    """
+
+    KNOWN_MODELS = {
         "gemini-pro",
         "gemini-pro-vision",
         "gemini-ultra",
         "gemini-nano",
         "gemini-1.5-pro",
         "gemini-1.5-flash",
+        "gemini-2-flash",  # Support new models without code changes
     }
 
     def __init__(self):
@@ -40,12 +46,20 @@ class GoogleTokenCounter(TokenCounter):
 
     @property
     def supported_models(self) -> List[str]:
-        return list(self.SUPPORTED_MODELS)
+        return list(self.KNOWN_MODELS)
 
     def count(self, text: str, model: str) -> TokenCountResult:
-        """Count tokens using Google's token counting API"""
+        """Count tokens using Google's token counting API
+
+        Pattern-based validation: accepts any gemini-* model.
+        Google API validates actual model existence server-side.
+        This allows forward compatibility with new Gemini models.
+        """
         if not self.validate_model(model):
-            raise ValueError(f"Unknown Gemini model: {model}")
+            raise ValueError(
+                f"Model '{model}' does not match gemini-* pattern. "
+                f"Gemini models must start with 'gemini-'"
+            )
 
         start_time = time.time()
 
@@ -68,8 +82,14 @@ class GoogleTokenCounter(TokenCounter):
         )
 
     def validate_model(self, model: str) -> bool:
-        """Check if model is supported"""
-        return model.lower() in self.SUPPORTED_MODELS
+        """Validate model pattern (not specific model list)
+
+        Uses pattern matching instead of hardcoded list.
+        Allows forward compatibility with new Gemini models.
+        Server-side validation via Google API for actual existence.
+        """
+        model_lower = model.lower()
+        return model_lower.startswith("gemini-")
 
     def get_tokenizer_info(self) -> Dict[str, Any]:
         """Return tokenizer info"""
