@@ -23,21 +23,31 @@ class OllamaTokenCounter(TokenCounter):
     """Token counter for models running in Ollama
 
     Ollama provides local LLM inference with dynamic model support.
-    Any model can be pulled into Ollama and automatically works with PyTokenCalc.
+    Models in Ollama change continuously - new ones are pulled, old ones deleted.
+    PyTokenCalc automatically adapts without code changes.
 
     Architecture for Ollama Integration:
     - Connects to local Ollama instance (default: localhost:11434)
-    - Supports dynamic model discovery (any model pulled into Ollama)
-    - No hardcoded model list needed
-    - New models are automatically supported without code changes
+    - Fetches model list from Ollama dynamically (not hardcoded)
+    - Models added to Ollama work immediately (no deployment needed)
+    - Models deleted from Ollama fail gracefully
+    - No code changes when Ollama models change
 
-    Example Ollama models:
+    Dynamic Behavior:
+    - supported_models: Queries Ollama API each time (always current)
+    - validate_model: Permissive (accepts any model name)
+    - count(): Ollama validates actual model availability at token count time
+    - New models: ollama pull custom/model-name → immediately works
+    - Deleted models: ollama rm model-name → error on next use (caught)
+
+    Example Ollama models (these change):
     - llama2, llama2-13b, llama2-70b
     - mistral, mistral-7b
     - neural-chat, neural-chat-7b
     - dolphin-mixtral, mixtral
     - openchat, openhermes
-    - Any custom or new model added to Ollama
+    - phi, wizardlm
+    - Any custom or newly released model
     """
 
     # Common Ollama models (for documentation, not restrictive)
@@ -114,6 +124,14 @@ class OllamaTokenCounter(TokenCounter):
 
         Dynamic discovery: accepts any model name.
         Ollama validates model existence and availability.
+
+        API Interface Stability:
+        - Input: Always accepts (model, text)
+        - Output: Always returns TokenCountResult with same fields
+        - Behavior: Same regardless of which Ollama models are installed
+        - Token counts: Consistent format even as Ollama models change
+
+        Ollama models may be added/removed anytime, but PyTokenCalc API remains stable.
         """
         start_time = time.time()
 
