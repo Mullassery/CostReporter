@@ -10,7 +10,7 @@ Fast local tokenizers for public models + cached API calls for proprietary ones.
 """
 
 from .base import TokenCounter, TokenCountResult
-from .registry import TokenCounterRegistry
+from .registry import TokenCounterRegistry, get_global_registry
 from .cache import TokenCounterCache
 
 __all__ = [
@@ -18,4 +18,5 @@ __all__ = [
     "TokenCountResult",
     "TokenCounterRegistry",
     "TokenCounterCache",
+    "get_global_registry",
 ]

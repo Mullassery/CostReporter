@@ -9,6 +9,11 @@ import logging
 from .base import TokenCounter, TokenCountResult
 from .openai_counter import OpenAITokenCounter
 from .huggingface_counter import HuggingFaceTokenCounter
+from .anthropic_counter import AnthropicTokenCounter
+from .google_counter import GoogleTokenCounter
+from .cohere_counter import CohereTokenCounter
+from .azure_openai_counter import AzureOpenAITokenCounter
+from .opensource_counter import OpenSourceTokenCounter
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +43,36 @@ class TokenCounterRegistry:
         except ImportError as e:
             logger.warning(f"HuggingFace counter unavailable: {e}")
 
+        try:
+            self.register("anthropic", AnthropicTokenCounter())
+            logger.info("Registered Anthropic token counter")
+        except ImportError as e:
+            logger.warning(f"Anthropic counter unavailable: {e}")
+
+        try:
+            self.register("google", GoogleTokenCounter())
+            logger.info("Registered Google token counter")
+        except ImportError as e:
+            logger.warning(f"Google counter unavailable: {e}")
+
+        try:
+            self.register("cohere", CohereTokenCounter())
+            logger.info("Registered Cohere token counter")
+        except ImportError as e:
+            logger.warning(f"Cohere counter unavailable: {e}")
+
+        try:
+            self.register("azure", AzureOpenAITokenCounter())
+            logger.info("Registered Azure OpenAI token counter")
+        except ImportError as e:
+            logger.warning(f"Azure OpenAI counter unavailable: {e}")
+
+        try:
+            self.register("opensource", OpenSourceTokenCounter())
+            logger.info("Registered open-source model token counter")
+        except ImportError as e:
+            logger.warning(f"Open-source counter unavailable: {e}")
+
     def register(self, provider: str, counter: TokenCounter):
         """Register a new token counter"""
         self.counters[provider.lower()] = counter
@@ -52,27 +87,32 @@ class TokenCounterRegistry:
         model_lower = model.lower()
 
         # OpenAI models
-        if any(x in model_lower for x in ["gpt-4", "gpt-3.5", "text-davinci"]):
+        if any(x in model_lower for x in ["gpt-4", "gpt-3.5", "text-davinci", "text-embedding"]):
             return self.get_counter("openai")
 
-        # Llama models
-        if any(x in model_lower for x in ["llama", "llama2", "llama3"]):
-            return self.get_counter("huggingface")
+        # Anthropic Claude models
+        if "claude" in model_lower:
+            return self.get_counter("anthropic")
 
-        # Mistral models
-        if "mistral" in model_lower:
-            return self.get_counter("huggingface")
+        # Google Gemini models
+        if "gemini" in model_lower:
+            return self.get_counter("google")
 
-        # Qwen models
-        if "qwen" in model_lower:
-            return self.get_counter("huggingface")
+        # Cohere models
+        if "command" in model_lower:
+            return self.get_counter("cohere")
 
-        # Mixtral models
-        if "mixtral" in model_lower:
-            return self.get_counter("huggingface")
+        # Azure OpenAI models
+        if "gpt-35" in model_lower or ("gpt-4" in model_lower and "azure" in model_lower):
+            return self.get_counter("azure")
 
-        # Default to HuggingFace (most permissive)
-        return self.get_counter("huggingface")
+        # Open-source models: DeepSeek, Falcon, PALM, Llama, Mistral, etc.
+        if any(x in model_lower for x in ["deepseek", "falcon", "text-bison", "code-bison",
+                                            "llama", "mistral", "qwen", "mixtral"]):
+            return self.get_counter("opensource")
+
+        # Default to open-source counter
+        return self.get_counter("opensource")
 
     def count_tokens(
         self,
