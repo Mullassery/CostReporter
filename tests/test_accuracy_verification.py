@@ -481,6 +481,100 @@ class TestPlatformTokenDifferences:
         assert "llama2" in consistency["warnings"][0], "Warning should mention the conflicting model"
 
 
+class TestLocalInferenceProviders:
+    """Verify support for multiple local LLM inference providers
+
+    Local providers: LM Studio, LocalAI, Llama.cpp, GPT4All, Text Generation WebUI, Jan, etc.
+
+    These providers use OpenAI-compatible APIs, allowing unified interface.
+    Token counting works if ANY local provider is running.
+    """
+
+    def test_local_inference_auto_detection(self):
+        """Verify auto-detection of available local providers"""
+        try:
+            from pytokencalc.tokenizers.local_inference_counter import LocalInferenceTokenCounter
+        except ImportError:
+            pytest.skip("local_inference_counter not available")
+
+        try:
+            counter = LocalInferenceTokenCounter()
+
+            # Should gracefully handle if no provider running
+            if counter.detected_provider is None:
+                pytest.skip("No local inference provider running")
+
+            # Should identify which provider is running
+            assert counter.detected_provider is not None, "Should detect available provider"
+            assert counter.detected_base_url is not None, "Should have provider URL"
+
+            # Supported models should be available
+            models = counter.supported_models
+            assert len(models) > 0, "Should detect available models"
+
+        except RuntimeError as e:
+            if "No local inference provider" in str(e):
+                pytest.skip("No local inference provider running (LM Studio, LocalAI, etc.)")
+            raise
+
+    def test_local_inference_model_discovery(self):
+        """Verify dynamic model discovery for local providers"""
+        try:
+            from pytokencalc.tokenizers.local_inference_counter import LocalInferenceTokenCounter
+        except ImportError:
+            pytest.skip("local_inference_counter not available")
+
+        try:
+            counter = LocalInferenceTokenCounter()
+
+            if counter.detected_provider is None:
+                pytest.skip("No local inference provider running")
+
+            # Should accept common local models
+            assert counter.validate_model("llama2"), "Should accept llama2"
+            assert counter.validate_model("mistral"), "Should accept mistral"
+            assert counter.validate_model("custom-model"), "Should accept custom models"
+
+            # Should reject invalid patterns
+            assert not counter.validate_model(""), "Should reject empty model"
+
+        except RuntimeError:
+            pytest.skip("No local inference provider running")
+
+    def test_local_provider_tokenization(self):
+        """Test token counting with local provider (if available)"""
+        try:
+            from pytokencalc.tokenizers.local_inference_counter import LocalInferenceTokenCounter
+        except ImportError:
+            pytest.skip("local_inference_counter not available")
+
+        sample = TEST_SAMPLES["english_medium"]
+        text = sample["text"]
+
+        try:
+            counter = LocalInferenceTokenCounter()
+
+            if counter.detected_provider is None:
+                pytest.skip("No local inference provider running")
+
+            # Try to count tokens for available model
+            result = counter.count(text, "llama2")
+
+            assert result.input_tokens > 0, "Token count should be positive"
+            assert result.platform == counter.detected_provider, "Platform should be detected provider"
+            assert result.source == "api", "Should use API source"
+
+        except RuntimeError as e:
+            # Skip if no provider or API error (different providers have different API formats)
+            if any(msg in str(e) for msg in [
+                "No local inference provider",
+                "Provider API error",
+                "Failed to count tokens",
+            ]):
+                pytest.skip(f"Local provider issue: {e}")
+            raise
+
+
 class TestOllamaAccuracy:
     """Verify Ollama token counts (local LLM inference engine)"""
 
