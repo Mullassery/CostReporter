@@ -15,6 +15,7 @@ from .cohere_counter import CohereTokenCounter
 from .azure_openai_counter import AzureOpenAITokenCounter
 from .opensource_counter import OpenSourceTokenCounter
 from .ollama_counter import OllamaTokenCounter
+from .custom_provider_counter import get_custom_provider, list_custom_providers
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +87,21 @@ class TokenCounterRegistry:
         logger.info(f"Registered token counter: {provider}")
 
     def get_counter(self, provider: str) -> Optional[TokenCounter]:
-        """Get counter by provider name"""
-        return self.counters.get(provider.lower())
+        """Get counter by provider name
+
+        Checks built-in providers first, then custom providers.
+        """
+        # Check built-in providers
+        counter = self.counters.get(provider.lower())
+        if counter:
+            return counter
+
+        # Check custom providers
+        custom = get_custom_provider(provider.lower())
+        if custom:
+            return custom
+
+        return None
 
     def _auto_detect_counter(self, model: str) -> Optional[TokenCounter]:
         """Auto-detect which counter to use based on model ID"""
@@ -205,8 +219,8 @@ class TokenCounterRegistry:
         return results
 
     def list_providers(self) -> List[str]:
-        """List registered providers"""
-        return list(self.counters.keys())
+        """List registered providers (built-in + custom)"""
+        return list(self.counters.keys()) + list_custom_providers()
 
     def list_models(self, provider: Optional[str] = None) -> List[str]:
         """List supported models (all or for specific provider)"""

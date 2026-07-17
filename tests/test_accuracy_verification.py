@@ -350,6 +350,190 @@ class TestCohereAccuracy:
         assert not counter.validate_model("claude-3-opus"), "Should reject non-Cohere models"
 
 
+class TestCustomProviderSupport:
+    """Verify support for custom/unknown providers
+
+    Users may use providers we haven't explicitly implemented:
+    - RunPod serverless endpoints
+    - Llama Labs custom implementations
+    - Replicate API
+    - Together AI
+    - HuggingFace Inference API
+    - Custom self-hosted solutions
+    - Proprietary enterprise APIs
+
+    PyTokenCalc should support ANY provider with an API.
+    """
+
+    def test_custom_provider_registration(self):
+        """Verify custom providers can be registered"""
+        from pytokencalc.tokenizers.custom_provider_counter import (
+            CustomProviderCounter,
+            register_custom_provider,
+            get_custom_provider,
+        )
+
+        # Create custom provider (don't verify accessibility for test)
+        custom_counter = CustomProviderCounter(
+            provider_name="test-provider",
+            base_url="https://api.example.com",
+            api_key="test-key",
+            verify_provider=False
+        )
+
+        # Register models
+        custom_counter.register_models(["test-model-1", "test-model-2"])
+
+        # Verify registration
+        assert custom_counter.validate_model("test-model-1"), "Should validate registered model"
+        assert custom_counter.validate_model("test-model-2"), "Should validate registered model"
+        assert not custom_counter.validate_model("unknown-model"), "Should reject unregistered model"
+
+        # Register globally
+        register_custom_provider(custom_counter)
+
+        # Retrieve from registry
+        retrieved = get_custom_provider("test-provider")
+        assert retrieved is not None, "Should retrieve registered provider"
+        assert retrieved.provider_name == "test-provider"
+
+    def test_custom_provider_registry_integration(self):
+        """Verify custom providers integrate with TokenCounterRegistry"""
+        from pytokencalc.tokenizers.custom_provider_counter import (
+            CustomProviderCounter,
+            register_custom_provider,
+        )
+
+        # Create and register custom provider
+        custom = CustomProviderCounter(
+            provider_name="runpod-test",
+            base_url="https://api.runpod.io/test",
+            verify_provider=False
+        )
+        custom.register_models(["llama-2-7b"])
+        register_custom_provider(custom)
+
+        # Get from registry
+        registry = TokenCounterRegistry()
+        counter = registry.get_counter("runpod-test")
+
+        assert counter is not None, "Registry should find custom provider"
+        assert counter.provider_name == "runpod-test"
+        assert "llama-2-7b" in counter.supported_models
+
+    def test_custom_provider_appears_in_list(self):
+        """Custom providers should appear in provider listing"""
+        from pytokencalc.tokenizers.custom_provider_counter import (
+            CustomProviderCounter,
+            register_custom_provider,
+        )
+
+        # Create custom provider
+        custom = CustomProviderCounter(
+            provider_name="custom-test-provider",
+            base_url="https://api.example.com",
+            verify_provider=False
+        )
+        register_custom_provider(custom)
+
+        # Check registry
+        registry = TokenCounterRegistry()
+        providers = registry.list_providers()
+
+        assert "custom-test-provider" in providers, "Custom provider should be listed"
+
+    def test_custom_provider_token_extraction(self):
+        """Verify custom token extraction logic"""
+        from pytokencalc.tokenizers.custom_provider_counter import CustomProviderCounter
+
+        # Custom extraction function
+        def extract_tokens(response):
+            return response.get("tokens_used", 0)
+
+        custom = CustomProviderCounter(
+            provider_name="test-custom",
+            base_url="https://api.example.com",
+            token_extraction_fn=extract_tokens,
+            verify_provider=False
+        )
+
+        # Test extraction with mock response
+        response = {"tokens_used": 42, "other_data": "xyz"}
+        tokens = custom.token_extraction_fn(response)
+        assert tokens == 42, "Custom extraction should work"
+
+    def test_default_token_extraction_formats(self):
+        """Verify default extraction handles multiple response formats"""
+        from pytokencalc.tokenizers.custom_provider_counter import CustomProviderCounter
+
+        extractor = CustomProviderCounter._default_token_extraction
+
+        # Test OpenAI-compatible format
+        response1 = {"usage": {"prompt_tokens": 100}}
+        assert extractor(response1) == 100, "Should extract OpenAI format"
+
+        # Test alternative format
+        response2 = {"tokens": 50}
+        assert extractor(response2) == 50, "Should extract alternative format"
+
+        # Test another alternative
+        response3 = {"token_count": 75}
+        assert extractor(response3) == 75, "Should extract token_count format"
+
+    def test_runpod_provider_example(self):
+        """Example: Register RunPod provider"""
+        from pytokencalc.tokenizers.custom_provider_counter import (
+            CustomProviderCounter,
+            register_custom_provider,
+        )
+
+        # Example: User has RunPod endpoint
+        runpod = CustomProviderCounter(
+            provider_name="runpod",
+            base_url="https://api.runpod.io/v2/user-id",
+            api_key="your-runpod-api-key",
+            verify_provider=False
+        )
+
+        # User registers their models
+        runpod.register_models([
+            "llama-2-7b",
+            "llama-2-13b",
+            "mistral-7b",
+        ])
+
+        # Register with PyTokenCalc
+        register_custom_provider(runpod)
+
+        # Now user can use it
+        registry = TokenCounterRegistry()
+        counter = registry.get_counter("runpod")
+        assert counter is not None
+        assert "llama-2-7b" in counter.supported_models
+
+    def test_llama_labs_provider_example(self):
+        """Example: Register Llama Labs provider"""
+        from pytokencalc.tokenizers.custom_provider_counter import (
+            CustomProviderCounter,
+            register_custom_provider,
+        )
+
+        # Example: User has Llama Labs endpoint
+        llama_labs = CustomProviderCounter(
+            provider_name="llama-labs",
+            base_url="https://api.llama-labs.com",
+            api_key="your-llama-labs-key",
+            verify_provider=False
+        )
+
+        llama_labs.register_models(["llama-index-7b", "llama-index-13b"])
+        register_custom_provider(llama_labs)
+
+        registry = TokenCounterRegistry()
+        counter = registry.get_counter("llama-labs")
+        assert counter is not None
+
+
 class TestPlatformTokenDifferences:
     """Verify that same model on different platforms may have different token counts
 
