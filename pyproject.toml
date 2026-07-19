@@ -78,6 +78,10 @@ target-version = ["py39", "py310", "py311", "py312"]
 line-length = 100
 target-version = "py39"
 
+[project.scripts]
+pytokencalc = "pytokencalc.cli:main"
+pycount = "pytokencalc.quick_cli:main"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
